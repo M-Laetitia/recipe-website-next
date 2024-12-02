@@ -5,6 +5,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
 }
 
 @media (prefers-color-scheme: dark) {
@@ -26,6 +27,13 @@ body {
 
 }
 
+.josefin {
+  font-family: var(--font-josefin);
+}
+
+.cursive {
+    font-family: var(--font-cursive);
+}
 
 /* :root {
   --foreground-rgb: 0, 0, 0;
