@@ -1,0 +1,13 @@
+model CategoryRecipe{
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    
+    recipeId String @db.ObjectId
+    recipe Recipe @relation(fields: [recipeId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+    categoryId String @db.ObjectId
+    category Category @relation(fields: [categoryId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+    @@index([recipeId])
+    @@index([categoryId])
+}
+

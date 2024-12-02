@@ -1,0 +1,16 @@
+model IngredientRecipe {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+
+    quantity    Float
+    unit        String 
+    
+    recipeId String @db.ObjectId
+    recipe Recipe @relation(fields: [recipeId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+    
+    ingredientId String @db.ObjectId
+    ingredient Ingredient @relation(fields: [ingredientId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+    
+    @@index([recipeId])
+    @@index([ingredientId])
+}
+

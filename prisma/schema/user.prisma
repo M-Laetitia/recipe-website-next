@@ -1,0 +1,20 @@
+model User {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+
+    username String @unique
+    email String @unique
+    password Int
+    avatar String
+    role String
+    bio String
+    slug String @unique
+    
+    createdAt DateTime @default(now())
+
+    recipes Recipe[]
+    articles Article[]
+    review Review[]
+    comments Comment[]
+    favorites Favorite[]
+    
+}

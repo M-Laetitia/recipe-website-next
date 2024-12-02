@@ -1,0 +1,11 @@
+model Tool {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    // recipeId String @db.ObjectId
+    // recipe Recipe @relation(fields: [recipeId], references: [id])
+
+    tools ToolRecipe[]
+
+    name String
+    image String
+    // slug String @unique
+}
