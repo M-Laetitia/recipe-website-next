@@ -1,6 +1,8 @@
 model Category {
     id String @id @default(auto()) @map("_id") @db.ObjectId
     name String
+    isPrimary Boolean?
+    slug String @unique
     
     categories CategoryRecipe[]
 }
