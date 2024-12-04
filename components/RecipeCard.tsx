@@ -26,8 +26,6 @@ const RecipeCard:React.FC<any> = ({ recipe }) => {
         ))}
     </div>
 
-
-
     </div>
   )
 }
