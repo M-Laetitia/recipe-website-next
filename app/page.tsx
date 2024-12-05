@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react'
+import { getCldImageUrl } from 'next-cloudinary';
 
 const Home = () => {
   const [categories, setCategories] = useState([])
@@ -15,6 +16,12 @@ const Home = () => {
     }
     fetchCategories();
   }, [])
+
+  const url = getCldImageUrl({
+    width: 960,
+    height: 600,
+    src: 'photo-1702355791694-e9cab84360aa_kavvpx'
+  });
 
   return (
     <>
@@ -44,7 +51,7 @@ const Home = () => {
             // <div key={category.id}>{category.name}</div>
             <div key={category.id}>
               {/* Lien vers la page de la catégorie, avec l'id dans l'URL */}
-              <Link href={`/category/${category.slug}`}>
+              <Link href={`/category/${category.id}`}>
                 {category.name}
               </Link>
             </div>
@@ -56,7 +63,12 @@ const Home = () => {
 
       {/* SECTION 1 - popular / latest recipes ? */}
       <section className="w-full flex-center h-screen flex-col">
-            
+
+      <div>
+        <h1>test image</h1>
+        <img src={url} alt="Image de la recette" />
+      </div>
+
       </section>
 
       
