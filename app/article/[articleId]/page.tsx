@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { formatDate } from '@/lib/utils';
 
+
+
 type Params = {
     articleId: string;
   };
@@ -29,13 +31,27 @@ type Tag = {
       name: string;
     };
   };
+
+type Props = {
+    params: Promise<{ articleId: string }>
+}
   
-  const ArticlePage = ({ params }: { params: Params }) => {
+  const ArticlePage = ({ params }: Props) => {
     const [article, setArticle] = useState<Article | null>(null); // Initialisation avec null
-    const { articleId } = params; 
+    // const { articleId } = params; 
+    const [articleId, setArticleId] = useState<string | null>(null); // Ajouter un état pour articleId
 
     useEffect(() => {
-        console.log('passe ici')
+        // Résoudre la promesse de params et extraire articleId
+        const fetchArticleId = async () => {
+          const resolvedParams = await params;
+          setArticleId(resolvedParams.articleId); // Mettre à jour articleId
+        };
+        
+        fetchArticleId();
+      }, [params]); // Mettre à jour l'effet lorsque params change
+
+    useEffect(() => {
         const fetchRecipe = async () => {
             const response = await fetch(`/api/article/${articleId}`);
             const data = await response.json();
