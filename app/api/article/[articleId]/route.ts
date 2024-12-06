@@ -1,8 +1,11 @@
 import { db} from "@/lib/db"
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request, { params }: { params: {articleId: string } }) {
-    const {articleId } = params; 
+
+// À partir de Next.js 13.4, la méthode GET n'accepte pas un objet destructuré avec { params } comme deuxième argument. Elle ne supporte que l'objet requête et le contexte (Request context), qui inclut params.
+// export async function GET(req: Request, { params }: { params: {articleId: string } }) {
+  export async function GET(req: Request, context: { params: { articleId: string } }) {
+    const {articleId } = context.params; 
       try {
       const article = await db.article.findUnique({
         where: {
