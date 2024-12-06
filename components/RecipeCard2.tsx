@@ -5,7 +5,24 @@ import { Clock4 } from 'lucide-react';
 import { ChefHat } from 'lucide-react';
 import { getCldImageUrl } from 'next-cloudinary';
 
-const RecipeCard2:React.FC<any> = ({ recipe }) => {
+type Category = {
+    id: string;
+    name: string;
+  };
+  
+  type Recipe = {
+    id: string;
+    title: string;
+    name: string;
+    duration: number;
+    image: string;
+    categories: {
+      category: Category;
+    }[];
+  };
+
+
+const RecipeCard2:React.FC<{ recipe: Recipe }> = ({ recipe }) => {
   return (
 
     <div className='w-[330px] h-[450px] relative ' key={recipe.id}>
@@ -39,7 +56,7 @@ const RecipeCard2:React.FC<any> = ({ recipe }) => {
         <div className='absolute bottom-0'>
             <h2 className=''>{recipe.name}</h2>
             <div className=''>
-                {recipe.categories.map((categoryRecipe: any) => (
+                {recipe.categories.map((categoryRecipe) => (
                     <span 
                         className=''
                         key={categoryRecipe.category.id}
