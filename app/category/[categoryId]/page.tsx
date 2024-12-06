@@ -14,11 +14,7 @@ type RecipeResponse = {
   recipe: Recipe;  // L'objet recette lui-même
 };
 
-type Category = {
-  id: string;
-  name: string;
-  recipes: Recipe[]; // Liste des recettes liées à la catégorie
-};
+
 
 type Props = {
   params: Promise<{ categoryId: string }>
