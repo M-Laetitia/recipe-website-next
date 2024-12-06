@@ -8,6 +8,17 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 // Import Swiper styles
 import 'swiper/css';
 
+type Category = {
+  id: string;
+  name: string;
+};
+
+type Recipe = {
+  id: string;
+  name: string;
+  image: string;
+};
+
 const Home = () => {
   const [categories, setCategories] = useState([])
   const [recipes, setRecipes] = useState([])
@@ -31,11 +42,11 @@ const Home = () => {
   }, [])
 
 
-  const url = getCldImageUrl({
-    width: 960,
-    height: 600,
-    src: 'photo-1702355791694-e9cab84360aa_kavvpx'
-  });
+  // const url = getCldImageUrl({
+  //   width: 960,
+  //   height: 600,
+  //   src: 'photo-1702355791694-e9cab84360aa_kavvpx'
+  // });
 
   return (
     <>
@@ -61,7 +72,7 @@ const Home = () => {
       {/* SECTION 1 - categories  */}
       <section className="w-full flex-center flex-col h-screen bg-purple-900">
         {categories.length > 0 ? (
-          categories.map((category: any) => (
+          categories.map((category: Category) => (
             // <div key={category.id}>{category.name}</div>
             <div key={category.id}>
               {/* Lien vers la page de la catégorie, avec l'id dans l'URL */}
@@ -76,7 +87,7 @@ const Home = () => {
       </section>
 
       {/* SECTION 1 - latest recipes */}
-      <section className="w-full flex-center h-screen flex justify-normal justify-center">
+      <section className="w-full flex-center h-screen flex justify-center">
 
       <div className='w-full'>
         <h1>Latest recipes :</h1>
@@ -90,11 +101,11 @@ const Home = () => {
           onSlideChange={() => console.log('slide change')}
           onSwiper={(swiper) => console.log(swiper)}
         >
-          {recipes.map((recipe: any) => (
+          {recipes.map((recipe: Recipe) => (
             <SwiperSlide key={recipe.id}>
               <div className="w-[300px] h-[450px]">
                 <div>
-                  <img
+                <Image
                     className="h-full w-full object-cover object-center"
                     src={getCldImageUrl({
                       src: recipe.image,
@@ -103,6 +114,8 @@ const Home = () => {
                       crop: 'fit',
                     })}
                     alt={recipe.name}
+                    width={960}  
+                    height={600} 
                   />
                 </div>
                 <p>

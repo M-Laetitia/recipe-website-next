@@ -1,12 +1,38 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { formatDate } from '@/lib/utils';
 
-const ArticlePage = ({ params }: { params: Promise<{ articleId: string }> }) => {
-    const [article, setArticle] = useState<any | null>(null); // Initialisation avec null
-    const { articleId } = React.use(params); // Utilise `React.use` pour résoudre `params`
+type Params = {
+    articleId: string;
+  };
+
+type Article = {
+    id: string;
+    title: string;
+    content: string;
+    createdAt: Date; 
+    user: {
+        id: string;
+        username: string;
+    }
+    tags:  {
+        tag: {
+            id: string;
+            name: string;
+        }
+    }[];
+};
+type Tag = {
+    id?: string;
+    tag: {
+      name: string;
+    };
+  };
+  
+  const ArticlePage = ({ params }: { params: Params }) => {
+    const [article, setArticle] = useState<Article | null>(null); // Initialisation avec null
+    const { articleId } = params; 
 
     useEffect(() => {
         console.log('passe ici')
@@ -42,7 +68,7 @@ const ArticlePage = ({ params }: { params: Promise<{ articleId: string }> }) => 
                 <div>
                     <p>Tags:</p>
                     { article && article.tags.length > 0 ? (
-                    article.tags.map((tag: any, index: number) => (
+                    article.tags.map((tag: Tag, index: number) => (
                         <div key={tag.id || index}>
                             <p>{tag.tag.name}</p>
                         </div>

@@ -6,10 +6,13 @@
 
 import RecipeCard2 from '@/components/RecipeCard2'
 // import Button from '@/components/Button'
-import { db } from '@/lib/db'
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 
+type Recipe = {
+    id: string;
+    name: string;
+  };
 
 const RecipePage = () => {
 
@@ -44,22 +47,17 @@ const RecipePage = () => {
                 {/* Liste des articles */}
                 {/* boucle en js à travers React dans un composant  */}
                 {/* articles > tableau  : article > 1 élément article de la BDD  / un document (mongoDB)*/}
-                {recipes.map((recipe: any, index: number) =>(
+                {recipes.map((recipe: Recipe, index: number) =>(
                     // 1° >nom de la proppriété (prop)   2°>la valeur (object article en entier récupéré dans mon tableau d'articles lui même alimenté par l'api et articles > tableau)
                     <RecipeCard2 key={index} recipe={recipe}/>
-
-                    
-                    
                 ))}
             </div>
 
             <div>
-            {recipes.map((recipe: any,  index: number) =>(
+            {recipes.map((recipe: Recipe,  index: number) =>(
                     // 1° >nom de la proppriété (prop)   2°>la valeur (object article en entier récupéré dans mon tableau d'articles lui même alimenté par l'api et articles > tableau)
-                    <div>
-                        
-
-                        <p key={index}>
+                    <div key={index}>
+                        <p >
                         {/* <Link href={`/recipe/${recipe.id}`}> */}
                         <Link href={`/recipe/${recipe.id}`}>
                         {recipe.name}

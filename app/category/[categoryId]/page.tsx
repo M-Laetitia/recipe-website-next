@@ -1,10 +1,19 @@
 'use client'
-// import { redirect } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 
+type Recipe = {
+  id: string;
+  name: string;
+};
+
+type Category = {
+  id: string;
+  name: string;
+  recipes: Recipe[]; // Liste des recettes liées à la catégorie
+};
 
 const CategoryPage = ({ params }: { params: { categoryId: string } }) => {
-  const [recipes, setRecipes] = useState<any[]>([]);
+const [recipes, setRecipes] = useState<Category[]>([]);
 
 // Utilisation de `React.use()` pour "unwrap" `params`
 //   const { categoryId} = React.use(params);
@@ -21,7 +30,7 @@ const { categoryId } = params;
     if (categoryId) {
       fetchRecipes();
     }
-  }, [params.categoryId]); // Recharger les recettes si le `categoryId` change
+  }, [categoryId]); // Recharger les recettes si le `categoryId` change
 
   if (recipes.length === 0) {
     return <p>No recipes for this category</p>;
@@ -31,9 +40,9 @@ const { categoryId } = params;
     <div>
     <h1>Recipe for this {categoryId}</h1>
     {recipes.length > 0 ? (
-      recipes.map((recipeObject: any) => (
-        <div key={recipeObject.id}>
-          <h2>{recipeObject.recipe.name}</h2> 
+      recipes.map((recipe: Recipe) => (
+        <div key={recipe.id}>
+          <h2>{recipe.name}</h2> 
 
         </div>
       ))
