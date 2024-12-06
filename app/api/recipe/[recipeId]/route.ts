@@ -1,12 +1,15 @@
 import { db} from "@/lib/db"
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: Request, { params }: { params: {recipeId: string } }) {
-    const {recipeId } = params; // Get the recipe id from the params
-    console.log("Recipe ID:",recipeId);
-      try {
-  
+type Props = {
+  params: Promise<{ recipeId: string }>
+}
 
+
+export async function GET(request: NextRequest, { params }: Props) {
+
+    try {
+      const { recipeId } = await params;
       const recipe = await db.recipe.findUnique({
         where: {
           id: recipeId, 
