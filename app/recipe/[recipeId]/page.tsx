@@ -97,30 +97,34 @@ const RecipePage = ({ params }: { params: Promise<{ recipeId: string }> }) => {
     // }, [params.recipeId]);
 
     const generatePDF = () => {
-        const doc = new jsPDF();
-    
-        //ajouter le titre de la recette
-        doc.setFont("Helvetica", "bold");
-        doc.setFontSize(18);
-        doc.text(recipe.name, 20, 20);
-    
-        // aouter l'image de la recette
-        doc.setFont("Helvetica", "normal");
-        doc.setFontSize(12);
-        doc.text(`Description: ${recipe.instruction}`, 20, 30);
-    
-        // ajouter d'autres détails 
-        doc.text("Ingrédients:", 20, 40);
-        let yPosition = 50; // Position Y pour les lignes suivantes
+        if (recipe) {
+            const doc = new jsPDF();
+        
+            //ajouter le titre de la recette
+            doc.setFont("Helvetica", "bold");
+            doc.setFontSize(18);
+            doc.text(recipe.name, 20, 20);
+        
+            // aouter l'image de la recette
+            doc.setFont("Helvetica", "normal");
+            doc.setFontSize(12);
+            doc.text(`Description: ${recipe.instruction}`, 20, 30);
+        
+            // ajouter d'autres détails 
+            doc.text("Ingrédients:", 20, 40);
+            let yPosition = 50; // Position Y pour les lignes suivantes
 
-        recipe.ingredients.map((ingredient: Ingredient, index: number) => {
-          doc.text(`${index + 1}. ${ingredient.ingredient.name}`, 20, yPosition);
-          yPosition += 10; // Ajouter un espace entre les lignes
-        });
+            recipe.include.ingredients.map((ingredient, index: number) => {
+            doc.text(`${index + 1}. ${ingredient.ingredient.name}`, 20, yPosition);
+            yPosition += 10; // Ajouter un espace entre les lignes
+            });
+        
+            // Sauvegarder le PDF
+            doc.save(`${recipe.name}.pdf`);
+        } else {
+            console.log("Recipe is null");
+        }
     
-        // Sauvegarder le PDF
-        doc.save(`${recipe.name}.pdf`);
-      };
 
     // if(!recipe) {
     //     redirect('/')
