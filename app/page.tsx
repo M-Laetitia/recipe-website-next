@@ -4,9 +4,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react'
 import { getCldImageUrl } from 'next-cloudinary';
+import { Swiper, SwiperSlide } from 'swiper/react';
+// Import Swiper styles
+import 'swiper/css';
 
 const Home = () => {
   const [categories, setCategories] = useState([])
+  const [recipes, setRecipes] = useState([])
 
   useEffect (() => {
     const fetchCategories = async() => {
@@ -16,6 +20,16 @@ const Home = () => {
     }
     fetchCategories();
   }, [])
+
+  useEffect (() => {
+    const fetchRecipes = async() => {
+      const response = await fetch('/api/recipe?limit=4')
+      const data = await response.json()
+      setRecipes(data)
+    }
+    fetchRecipes();
+  }, [])
+
 
   const url = getCldImageUrl({
     width: 960,
@@ -61,12 +75,48 @@ const Home = () => {
         )}
       </section>
 
-      {/* SECTION 1 - popular / latest recipes ? */}
-      <section className="w-full flex-center h-screen flex-col">
+      {/* SECTION 1 - latest recipes */}
+      <section className="w-full flex-center h-screen flex justify-normal justify-center">
 
-      <div>
-        <h1>test image</h1>
-        <img src={url} alt="Image de la recette" />
+      <div className='w-full'>
+        <h1>Latest recipes :</h1>
+        <div className='w-4/5 bg-slate-500 flex flex-row'>
+
+          
+        {recipes.length > 0 ? (
+        <Swiper
+          spaceBetween={20}         // Espace entre les slides
+          slidesPerView={3}        // Affiche 3 slides à la fois
+          onSlideChange={() => console.log('slide change')}
+          onSwiper={(swiper) => console.log(swiper)}
+        >
+          {recipes.map((recipe: any) => (
+            <SwiperSlide key={recipe.id}>
+              <div className="w-[300px] h-[450px]">
+                <div>
+                  <img
+                    className="h-full w-full object-cover object-center"
+                    src={getCldImageUrl({
+                      src: recipe.image,
+                      width: 960,
+                      height: 600,
+                      crop: 'fit',
+                    })}
+                    alt={recipe.name}
+                  />
+                </div>
+                <p>
+                  <Link href={`/recipe/${recipe.id}`}>{recipe.name}</Link>
+                </p>
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      ) : (
+        <p>Loading...</p>
+      )}
+
+        </div>
       </div>
 
       </section>
