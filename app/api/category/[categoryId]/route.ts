@@ -1,5 +1,5 @@
 import { db} from "@/lib/db"
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 
 // export : rend cette fonction accessible depuis l'extérieur
@@ -10,11 +10,16 @@ import { NextResponse } from "next/server";
 // params : Objet contenant les paramètres dynamiques de la route. Ici, c'est l'ID de la catégorie
 // id: string : params.id est défini comme une chaîne de caractères (string). Cela correspond à l'ID extrait de l'URL dynamique ([id] dans /api/category/[id]/recipes).
 
-export async function GET(req: Request, { params }: { params: { categoryId: string } }) {
-  const { categoryId } = params; // Get the category ID from the params
-  console.log("Category ID:", categoryId);
-    try {
+type Props = {
+  params: Promise<{ categoryId: string }>
+}
 
+
+export async function GET(request: NextRequest, { params }: Props) {
+  // const { categoryId } = params; // Get the category ID from the params
+
+    try {
+    const { categoryId } = await params;
     // Recherche des recettes associées à cette catégorie
     const recipes = await db.categoryRecipe.findMany({
       where: { categoryId: categoryId },
