@@ -37,7 +37,7 @@ const Nav = () => {
             </Link>
 
             <Link
-                href="/blog"
+                href="/article"
                 className= {`${
                     currentPath === "/blog" ? "text-accentColor" : "text-whiteColor"
                   } relative pb-1.5  hover:text-accentColor hover:duration-300 after:transition-all`}
