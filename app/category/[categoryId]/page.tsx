@@ -12,12 +12,25 @@ type Category = {
   recipes: Recipe[]; // Liste des recettes liées à la catégorie
 };
 
-const CategoryPage = ({ params }: { params: { categoryId: string } }) => {
-const [recipes, setRecipes] = useState<Category[]>([]);
+type Props = {
+  params: Promise<{ categoryId: string }>
+}
 
-// Utilisation de `React.use()` pour "unwrap" `params`
-//   const { categoryId} = React.use(params);
-const { categoryId } = params;
+const CategoryPage = ({ params }: Props) => {
+const [recipes, setRecipes] = useState<Category[]>([]);
+const [categoryId, setcategoryId] = useState<string | null>(null); 
+
+useEffect(() => {
+  // Résoudre la promesse de params et extraire articleId
+  const fetchCategoryId = async () => {
+    const resolvedParams = await params;
+    setcategoryId(resolvedParams.categoryId); // Mettre à jour CategoryId
+  };
+  
+  fetchCategoryId();
+}, [params]); // Mettre à jour l'effet lorsque params change
+
+
   useEffect(() => {
     const fetchRecipes = async () => {
       // Utiliser `categoryId` pour la requête
