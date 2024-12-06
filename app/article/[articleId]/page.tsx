@@ -5,9 +5,9 @@ import { formatDate } from '@/lib/utils';
 
 
 
-type Params = {
-    articleId: string;
-  };
+// type Params = {
+//     articleId: string;
+//   };
 
 type Article = {
     id: string;
