@@ -45,7 +45,7 @@ export async function GET(req: Request, { params }: { params: {articleId: string
   
         return NextResponse.json(article);
       } catch (error) {
-        // console.error("[RECIPES] Error:", error);
+        console.error("[RECIPES] Error:", error);
         return new NextResponse("Internal Error", { status: 500 });
       }
     }

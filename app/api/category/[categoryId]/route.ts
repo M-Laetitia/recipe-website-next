@@ -27,7 +27,7 @@ export async function GET(req: Request, { params }: { params: { categoryId: stri
 
       return NextResponse.json(recipes);
     } catch (error) {
-      // console.error("[RECIPES] Error:", error);
+      console.error("[RECIPES] Error:", error);
       return new NextResponse("Internal Error", { status: 500 });
     }
   }

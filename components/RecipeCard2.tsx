@@ -24,7 +24,7 @@ const RecipeCard2:React.FC<any> = ({ recipe }) => {
                 height={600}
                 objectFit="contain"
                 /> */}
-                  <img className='h-full w-full object-cover object-center'
+                  <Image className='h-full w-full object-cover object-center'
                     src={getCldImageUrl({
                     src: recipe.image,
                     width: 960,

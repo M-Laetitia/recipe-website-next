@@ -2,26 +2,26 @@ import { db} from "@/lib/db"
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request, { params }: { params: {recipeId: string } }) {
-    const {recipeId } = params; // Get therecipe ID from the params
+    const {recipeId } = params; // Get the recipe id from the params
     console.log("Recipe ID:",recipeId);
       try {
   
-      // Recherche des recettes associées à cette catégorie
+
       const recipe = await db.recipe.findUnique({
         where: {
-          id: recipeId, // Recherche la recette par son ID
+          id: recipeId, 
         },
         include: {
-            user: {  // Inclusion de l'utilisateur
+            user: {  
                 select: {
-                  username: true,  // Sélectionne uniquement l'username
+                  username: true,  
                 },
             },
             categories: {
               include: {
                 category: { 
                   select: {
-                    name: true,  // sélectionner uniquement le nom de la catégorie
+                    name: true,  
                   },
                 },
               },
@@ -39,7 +39,7 @@ export async function GET(req: Request, { params }: { params: {recipeId: string 
                 include: {
                   tool: { 
                     select: {
-                      name: true,  // sélectionner uniquement le nom de la catégorie
+                      name: true,  
                     },
                   },
                 },
@@ -70,7 +70,7 @@ export async function GET(req: Request, { params }: { params: {recipeId: string 
   
         return NextResponse.json(recipe);
       } catch (error) {
-        // console.error("[RECIPES] Error:", error);
+        console.error("[RECIPES] Error:", error);
         return new NextResponse("Internal Error", { status: 500 });
       }
     }
