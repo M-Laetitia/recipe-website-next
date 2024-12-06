@@ -17,6 +17,7 @@ type Recipe = {
     createdAt: Date; 
     duration: number;
     difficulty: number;
+    image: string;
 
     include :{
         tools: {
@@ -60,7 +61,7 @@ type Ingredient = {
     id: string;
     name: string;
     quantity: number;
-    unity: string;
+    unit: string;
 };
 type Category = {
     id: string;
