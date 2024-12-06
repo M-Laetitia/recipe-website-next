@@ -74,11 +74,22 @@ type Step = {
     description: string
 };
 
+type Props = {
+    params: Promise<{ recipeId: string }>
+}
 
-
-const RecipePage = ({ params }: { params: Promise<{ recipeId: string }> }) => {
+const RecipePage = ({ params }: Props)  => {
     const [recipe, setRecipe] = useState<Recipe | null>(null); // Initialisation avec null
-    const { recipeId } = React.use(params); // Utilise `React.use` pour résoudre `params`
+    const [recipeId, setRecipeId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchRecipeId = async () => {
+          const resolvedParams = await params;
+          setRecipeId(resolvedParams.recipeId); 
+        };
+        
+        fetchRecipeId();
+      }, [params]); 
 
     useEffect(() => {
         console.log('passe ici')
@@ -125,7 +136,7 @@ const RecipePage = ({ params }: { params: Promise<{ recipeId: string }> }) => {
             console.log("Recipe is null");
         }
     
-
+    }
     // if(!recipe) {
     //     redirect('/')
     // }
