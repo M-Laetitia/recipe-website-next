@@ -5,6 +5,7 @@ import { db } from '@/lib/db'; // Import the database
 import { getCldImageUrl } from 'next-cloudinary';
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link';
+import { jsPDF } from "jspdf"; 
 
 
 
@@ -17,7 +18,7 @@ const RecipePage = ({ params }: { params: Promise<{ recipeId: string }> }) => {
     const [recipe, setRecipe] = useState<any | null>(null); // Initialisation avec null
     const { recipeId } = React.use(params); // Utilise `React.use` pour résoudre `params`
 
-    console.log("Recipe ID clien:", recipeId);
+   
     useEffect(() => {
         console.log('passe ici')
         const fetchRecipe = async () => {
@@ -34,8 +35,32 @@ const RecipePage = ({ params }: { params: Promise<{ recipeId: string }> }) => {
     }, [recipeId]);
     // }, [params.recipeId]);
 
+    const generatePDF = () => {
+        const doc = new jsPDF();
+    
+        //ajouter le titre de la recette
+        doc.setFont("Helvetica", "bold");
+        doc.setFontSize(18);
+        doc.text(recipe.name, 20, 20);
+    
+        // aouter l'image de la recette
+        doc.setFont("Helvetica", "normal");
+        doc.setFontSize(12);
+        doc.text(`Description: ${recipe.instruction}`, 20, 30);
+    
+        // ajouter d'autres détails 
+        doc.text("Ingrédients:", 20, 40);
+        let yPosition = 50; // Position Y pour les lignes suivantes
 
-    console.log('test', recipe)
+        recipe.ingredients.map((ingredient: any, index: number) => {
+          doc.text(`${index + 1}. ${ingredient.ingredient.name}`, 20, yPosition);
+          yPosition += 10; // Ajouter un espace entre les lignes
+        });
+    
+        // Sauvegarder le PDF
+        doc.save(`${recipe.name}.pdf`);
+      };
+
     // if(!recipe) {
     //     redirect('/')
     // }
@@ -47,6 +72,7 @@ const RecipePage = ({ params }: { params: Promise<{ recipeId: string }> }) => {
     return (
         <div>
             <h1>Recipe : {recipe.name}</h1>
+            <button onClick={generatePDF}>Générer le PDF</button>
             <figure>
                 <img
                     src={getCldImageUrl({
