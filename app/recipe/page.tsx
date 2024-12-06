@@ -9,10 +9,23 @@ import RecipeCard2 from '@/components/RecipeCard2'
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-type Recipe = {
+
+type Category = {
     id: string;
     name: string;
-  };
+};
+  
+type Recipe = {
+    id: string;
+    title: string;
+    name: string;
+    duration: number;
+    image: string;
+    categories: {
+        category: Category;
+    }[];
+};
+
 
 const RecipePage = () => {
 
@@ -48,14 +61,12 @@ const RecipePage = () => {
                 {/* boucle en js à travers React dans un composant  */}
                 {/* articles > tableau  : article > 1 élément article de la BDD  / un document (mongoDB)*/}
                 {recipes.map((recipe: Recipe, index: number) =>(
-                    // 1° >nom de la proppriété (prop)   2°>la valeur (object article en entier récupéré dans mon tableau d'articles lui même alimenté par l'api et articles > tableau)
                     <RecipeCard2 key={index} recipe={recipe}/>
                 ))}
             </div>
 
             <div>
             {recipes.map((recipe: Recipe,  index: number) =>(
-                    // 1° >nom de la proppriété (prop)   2°>la valeur (object article en entier récupéré dans mon tableau d'articles lui même alimenté par l'api et articles > tableau)
                     <div key={index}>
                         <p >
                         {/* <Link href={`/recipe/${recipe.id}`}> */}
