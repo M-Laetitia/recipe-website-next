@@ -49,6 +49,8 @@ const RecipeCard2:React.FC<{ recipe: Recipe }> = ({ recipe }) => {
                     crop: 'fit'
                     })}
                     alt={recipe.name}
+                    width={500}
+                    height={500}
                 />
             </div>
         </figure>
