@@ -50,6 +50,12 @@ body {
   font-family: var(--font-josefin);
 }
 
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  content: none !important;
+}
+
+
 
 /* :root {
   --foreground-rgb: 0, 0, 0;
