@@ -35,6 +35,22 @@ body {
     font-family: var(--font-cursive);
 }
 
+.title-medium {
+  @apply font-light text-3xl tracking-wide uppercase;
+  font-family: var(--font-josefin);
+}
+
+.title-small {
+  @apply font-normal text-xl tracking-wider uppercase;
+  font-family: var(--font-josefin);
+}
+
+.text-small {
+  @apply font-light text-lg leading-5 tracking-normal;
+  font-family: var(--font-josefin);
+}
+
+
 /* :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
