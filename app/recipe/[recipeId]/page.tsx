@@ -18,51 +18,38 @@ type Recipe = {
     duration: number;
     difficulty: number;
     image: string;
-
-    include :{
-        tools: {
-            tool: Tool;
-        }[];
-        ingredients: {
-            ingredient: Ingredient;
-        }[];
-          categories: {
-            category: Category;
-        }[];
-          reviews: {
-            review: Review;
-        }[];
-        steps: {
-            step: Step;
-        }[];
-        user: {
-            id: string;
-            username: string;
-        }
-    }
+    ingredients: [];
+    tools: [];
+    steps: [];
+    reviews: [];
+    categories: [];
+    user: User;
 };
+
+type Ingredient = {
+    id: string;
+    quantity: number;
+    unit: string;
+    ingredient: {
+        name: string;
+    };
+};
+
 type Review = {
     title: string;
     id: string;
     content: string;
     createdAt: Date;
-     include : {
-        user: {
-            username:string
-        }
-     }
+    user : User;
   };
 
 type Tool = {
     id: string;
-    name: string;
+    tool: {
+        name: string;
+    };
 };
-type Ingredient = {
-    id: string;
-    name: string;
-    quantity: number;
-    unit: string;
-};
+
 type Category = {
     id: string;
     name: string;
@@ -73,6 +60,11 @@ type Step = {
     duration: number;
     description: string
 };
+
+type User = {
+    id: string,
+    username: string,
+}
 
 type Props = {
     params: Promise<{ recipeId: string }>
@@ -96,7 +88,7 @@ const RecipePage = ({ params }: Props)  => {
         const fetchRecipe = async () => {
             const response = await fetch(`/api/recipe/${recipeId}`);
             const data = await response.json();
-            console.log(data); 
+            console.log('datas',data); 
             setRecipe(data);
         };
 
@@ -125,7 +117,7 @@ const RecipePage = ({ params }: Props)  => {
             doc.text("Ingrédients:", 20, 40);
             let yPosition = 50; // Position Y pour les lignes suivantes
 
-            recipe.include.ingredients.map((ingredient, index: number) => {
+            recipe.ingredients.map((ingredient: Ingredient, index: number) => {
             doc.text(`${index + 1}. ${ingredient.ingredient.name}`, 20, yPosition);
             yPosition += 10; // Ajouter un espace entre les lignes
             });
@@ -151,16 +143,17 @@ const RecipePage = ({ params }: Props)  => {
         ? [
             {
                 name: "Tools",
-                items: recipe.include.tools.map((tool) => tool.tool.name) || [],
+                items: recipe.tools.map((tool: Tool) => tool.tool.name) || [],
             },
             {
                 name: "Ingredients",
-                items: recipe.include.ingredients.map((ing) => ing.ingredient.name) || [],
+                items: recipe.ingredients.map((ing: Ingredient) => ing.ingredient.name) || [],
             },
             ]
     : [];
+            console.log('recipe', recipe)
 
-
+            console.log('tabs content', tabsData)
     return (
         <div>
             <h1>Recipe : {recipe.name}</h1>
@@ -181,16 +174,16 @@ const RecipePage = ({ params }: Props)  => {
             <p> Date: {formatDate(recipe.createdAt)}</p>
             <p>Duration: {recipe.duration}min</p>
             <p>Difficulty: {recipe.difficulty} /5</p>
-            <p>Created by: {recipe.include.user?.username || 'Unknown'}</p>
+            <p>Created by: {recipe.user?.username || 'Unknown'}</p>
             <p></p>
 
             <h3>CATEGORIES:</h3>
             <div>
             <div>
-                { recipe && recipe.include.categories.length > 0 ? (
-                    recipe.include.categories.map((category, index: number) => (
-                        <div key={category.category.id || index}>
-                            <p>{category.category.name}</p>
+                { recipe && recipe.categories.length > 0 ? (
+                    recipe.categories.map((category: Category, index: number) => (
+                        <div key={category.id || index}>
+                            <p>{category.name}</p>
                         </div>
                     ))
                 ) : (
@@ -201,10 +194,10 @@ const RecipePage = ({ params }: Props)  => {
             </div>
             <h2>STEPS : </h2>
             <div>
-                { recipe && recipe.include.steps.length > 0 ? (
-                    recipe.include.steps.map((step, index: number) => (
-                        <div key={step.step.id || index}>
-                            <p>{step.step.number} - {step.step.description} - {step.step.duration}min</p>
+                { recipe && recipe.steps.length > 0 ? (
+                    recipe.steps.map((step: Step, index: number) => (
+                        <div key={step.id || index}>
+                            <p>{step.number} - {step.description} - {step.duration}min</p>
                         </div>
                     ))
                 ) : (
@@ -214,10 +207,10 @@ const RecipePage = ({ params }: Props)  => {
 
             <h3>INGREDIENTS</h3>
             <div>
-                { recipe && recipe.include.ingredients.length > 0 ? (
-                    recipe.include.ingredients.map((ingredient, index: number) => (
-                        <div key={ingredient.ingredient.id || index}>
-                            <p>{ingredient.ingredient.name} - {ingredient.ingredient.quantity}{ingredient.ingredient.unit}</p>
+                { recipe && recipe.ingredients.length > 0 ? (
+                    recipe.ingredients.map((ingredient: Ingredient, index: number) => (
+                        <div key={ingredient.id || index}>
+                            <p>{ingredient.ingredient.name} - {ingredient.quantity}{ingredient.unit}</p>
                         </div>
                     ))
                 ) : (
@@ -226,9 +219,9 @@ const RecipePage = ({ params }: Props)  => {
             </div>
             <h3>TOOLS</h3>
             <div>
-                { recipe && recipe.include.tools.length > 0 ? (
-                    recipe.include.tools.map((tool, index: number) => (
-                        <div key={tool.tool.id || index}>
+                { recipe && recipe.tools.length > 0 ? (
+                    recipe.tools.map((tool: Tool, index: number) => (
+                        <div key={tool.id || index}>
                             <p>{tool.tool.name} - </p>
                         </div>
                     ))
@@ -238,12 +231,12 @@ const RecipePage = ({ params }: Props)  => {
             </div>
             <h3>REVIEWS</h3>
             <div>
-                { recipe && recipe.include.reviews.length > 0 ? (
-                    recipe.include.reviews.map((review, index: number) => (
-                        <div key={review.review.id || index}>
-                            <p>{review.review.content} 
-                            {formatDate(review.review.createdAt)}
-                            - {review.review.include?.user.username}</p>
+                { recipe && recipe.reviews.length > 0 ? (
+                    recipe.reviews.map((review: Review, index: number) => (
+                        <div key={review.id || index}>
+                            <p>{review.content} 
+                            {formatDate(review.createdAt)}
+                            - {review.user.username}</p>
                             {/* <Link href={`/city/${city.id}`}>{city.name}</Link> */}
                         </div>
                     ))
