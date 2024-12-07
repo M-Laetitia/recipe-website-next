@@ -62,7 +62,7 @@ type Props = {
         if (articleId) {
         fetchRecipe();
         }
-
+        console.log(`/api/recipe/${articleId}`);
     }, [articleId]);
     // }, [params.recipeId]);
 
