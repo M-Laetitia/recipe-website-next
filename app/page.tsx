@@ -4,13 +4,14 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react'
 import { getCldImageUrl } from 'next-cloudinary';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation } from 'swiper';
+import { Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 
 type Category = {
   id: string;
   name: string;
+  image: string;
 };
 
 type Recipe = {
@@ -19,9 +20,13 @@ type Recipe = {
   image: string;
 };
 
+
+
 const Home = () => {
   const [categories, setCategories] = useState([])
   const [recipes, setRecipes] = useState([])
+  const colors = ['#D98341', '#EAEAEA', '#0B161A']
+  const borderColors = ['#D98341', '#EAEAEA', '#D98341']
 
   useEffect (() => {
     const fetchCategories = async() => {
@@ -83,14 +88,7 @@ const Home = () => {
           </p>
 
           <div className='w-full flex '>
-            <div className='transform scale-x-[-1] flex items-center'>
-              <Image
-              src="/img/right-arrow-sketch.svg"
-              alt="A left arrow"
-              width={40} 
-              height={40}
-              />
-            </div>
+            
 
             <div className='w-full flex flex-row justify-evenly'>
 
@@ -98,21 +96,49 @@ const Home = () => {
                   <Swiper
                   modules={[Navigation]}
                   navigation={{
-                    prevEl: '/img/right-arrow-sketch.svg',
-                    nextEl: '/img/right-arrow-sketch.svg',
+                    prevEl: '.swiper-button-prev',
+                    nextEl: '.swiper-button-next',
                   }}
-                  spaceBetween={0}         // Espace entre les slides
+                  spaceBetween={10}         // Espace entre les slides
                   slidesPerView={4}        // Affiche 3 slides à la fois
                   onSlideChange={() => console.log('slide change')}
                   onSwiper={(swiper) => console.log(swiper)}
                 >
-                {categories.map((category: Category) => (
+
+                <div className=' swiper-button-prev flex items-center rotate-180 '>
+                  <Image
+                  src="/img/right-arrow-sketch.svg"
+                  alt="Previous"
+                  width={50} 
+                  height={50}
+                  style={{ width: '50px', height: '50px', maxWidth: 'none' }}
+                  />
+                </div>
+           
+                <div className=' swiper-button-next flex items-center  w-[50px] h-[50px]'>
+                  <Image
+                  src="/img/right-arrow-sketch.svg"
+                  alt="Next"
+                  width={50} 
+                  height={50}
+                  style={{ width: '50px', height: '50px', maxWidth: 'none' }}
+                  />
+                </div>
+
+                {categories.map((category: Category,  index: number ) => (
                   <SwiperSlide key={category.id}>
-                <div className='bg-[#D98341] w-[215px] h-[270px]'>
+                  <div 
+                    style={{
+                      backgroundColor: colors[index % colors.length],
+                      borderColor: borderColors[index % borderColors.length],
+                      borderWidth: '2px',
+                      borderStyle: 'solid' 
+                    }}
+                    className='w-[215px] h-[270px]'>
                   <div className='h-[80%] w-full p-4'>
                     <Image className=''
                         src={getCldImageUrl({
-                        src: 'starter_white_hlwzzf',
+                        src: category.image,
                         width: 400,
                         height: 400,
                         crop: 'fit'
@@ -137,32 +163,9 @@ const Home = () => {
 
             </div>
             
-            <div className='flex items-center'>
-              <Image
-              src="/img/right-arrow-sketch.svg"
-              alt="A left arrow"
-              width={40} 
-              height={40}
-              />
-            </div>
+           
 
           </div>
-
-
-
-          {categories.length > 0 ? (
-            categories.map((category: Category) => (
-              // <div key={category.id}>{category.name}</div>
-              <div key={category.id}>
-                {/* Lien vers la page de la catégorie, avec l'id dans l'URL */}
-                <Link href={`/category/${category.id}`}>
-                  {category.name}
-                </Link>
-              </div>
-            ))
-          ) : (
-            <p>Loading...</p>
-          )}
 
 
         </div>
