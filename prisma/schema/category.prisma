@@ -4,6 +4,7 @@ model Category {
     isPrimary Boolean?
     slug String @unique
     image String?
+    number Int?
     
     categories CategoryRecipe[]
 }
