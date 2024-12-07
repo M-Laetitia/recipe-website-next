@@ -7,6 +7,9 @@ export async function GET() {
             where: {
                 isPrimary: true,
             },
+            orderBy: {
+                number: 'asc',
+            }
           });
         return NextResponse.json(categories)
     } catch (error) {
