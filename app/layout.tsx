@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import Nav from '@/components/Nav';
+import Footer from '@/components/Footer';
 import "../styles/globals.css";
 import { josefin } from "@/src/app/utils/fonts";
 import { cursive } from "@/src/app/utils/fonts";
@@ -20,10 +21,12 @@ export default function RootLayout({
     <html lang="en">
       {/* <body className={`${josefin_init.variable} ${birthstone_init.variable}`}> */}
       <body className={`${josefin} ${cursive}`}>
+        <Nav />
         <main className="bg-slate-800 min-h-screen text-white">
-          <Nav />
+          
           {children}
         </main>
+        <Footer />
       </body>
     </html>
   );
