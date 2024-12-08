@@ -1,9 +1,10 @@
 'use client'
 import React from 'react'
 import Link from 'next/link';
+// import { useState, useEffect } from 'react';
 // afficher style différent pour liens actifs
 import { usePathname } from 'next/navigation';
-
+import ThemeToggle from '@/components/ThemeToggle';
 
 
 const Nav = () => {
@@ -49,9 +50,14 @@ const Nav = () => {
 
         </div>
 
-        <div className=''>SEARCH</div>
+        {/* Dark / Light theme */}
+        <ThemeToggle />
 
-        <div className=''>LOGIN</div>
+        <div>
+            {/* <div className=''>SEARCH</div> */}
+
+            <div className=''>LOGIN</div>
+        </div>
     </nav>
   )
 }
