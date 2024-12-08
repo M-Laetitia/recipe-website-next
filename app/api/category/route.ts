@@ -9,9 +9,23 @@ export async function GET() {
             },
             orderBy: {
                 number: 'asc',
-            }
-          });
-        return NextResponse.json(categories)
+            },
+            include: {
+                categories: {
+                    select: {
+                        recipeId: true, 
+                    }
+                },
+            },
+        });
+
+        // Calculer le nb de recettes par catégories
+        const categoriesWithRecipeCount  = categories.map(category => ({
+            // spread operator copie toutes les propriétés de l'objet category dans un nouveau tableau
+            ...category,
+            recipeCount: category.categories.length,
+        }));
+        return NextResponse.json(categoriesWithRecipeCount)
     } catch (error) {
         console.error("[CATEGORIES] Error:", error)
         return new NextResponse("Internal Error", { status: 500 })
