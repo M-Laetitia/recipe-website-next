@@ -2,18 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  
+  --blackColor: #0B161A; 
+  --darkGrey: #141E20;
+  --accentColor: #D98341;
+  --whiteColor: #EAEAEA;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.light {
+  --blackColor: #EAEAEA; 
+  --darkGrey: #0B161A;
+  --accentColor: #D98341; 
+  --whiteColor: #0B161A;
 }
+
+
+
 
 * {
   margin: 0;
