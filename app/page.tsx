@@ -12,6 +12,7 @@ type Category = {
   id: string;
   name: string;
   image: string;
+  recipeCount : number; 
 };
 
 type Recipe = {
@@ -183,8 +184,8 @@ const Home = () => {
               <Swiper
                 spaceBetween={20}         // Espace entre les slides
                 slidesPerView={3}        // Affiche 3 slides à la fois
-                onSlideChange={() => console.log('slide change')}
-                onSwiper={(swiper) => console.log(swiper)}
+                // onSlideChange={() => console.log('slide change')}
+                // onSwiper={(swiper) => console.log(swiper)}
               >
                 {recipes.map((recipe: Recipe) => (
                   <SwiperSlide key={recipe.id}>
@@ -218,12 +219,12 @@ const Home = () => {
       </section>
       
       {/* SECTION 1 - actual theme  ? */}
-      <section className="w-full flex-center h-screen flex-col">
-      </section>
+      {/* <section className="w-full flex-center h-screen flex-col">
+      </section> */}
 
       {/* SECTION 1 - latest articles  */}
-      <section className="w-full flex-center flex-col h-screen bg-purple-900">
-      </section>
+      {/* <section className="w-full flex-center flex-col h-screen bg-purple-900">
+      </section> */}
 
     </>
   )
