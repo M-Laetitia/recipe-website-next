@@ -86,7 +86,7 @@ const Home = () => {
               height={45}
               className="transform rotate-[-5deg]"
               />
-            <p className='w-full text-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursive-medium '>Some words ! </p>
+            <p className='w-full text-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursive font-cursive cursive-medium '>Some words ! </p>
           </div>
           <h2 className="title-medium mb-2">Recipes by category</h2>
           <p className='text-small w-[70%] mb-20 text-center'>

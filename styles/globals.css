@@ -17,9 +17,6 @@
   --whiteColor: #0B161A;
 }
 
-
-
-
 * {
   margin: 0;
   padding: 0;
@@ -41,7 +38,7 @@ body {
 }
 
 .title-medium {
-  @apply font-light text-3xl tracking-wide uppercase;
+  @apply font-light text-[2.3rem] tracking-wide uppercase;
   font-family: var(--font-josefin);
 }
 
@@ -53,6 +50,11 @@ body {
 .text-small {
   @apply font-light text-lg leading-5 tracking-normal;
   font-family: var(--font-josefin);
+}
+
+.cursive-medium {
+  @apply font-light text-[2.8rem] leading-5 tracking-normal;
+  font-family: var(--font-cursive);
 }
 
 .swiper-button-prev::after,
