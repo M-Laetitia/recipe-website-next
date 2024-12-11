@@ -2,7 +2,7 @@ model Article {
     id String @id @default(auto()) @map("_id") @db.ObjectId
     title String
     content String
-    image String
+    image String?
     slug String @unique
     
     createdAt DateTime @default(now())
