@@ -218,9 +218,40 @@ const Home = () => {
         </div>
       </section>
       
-      {/* SECTION 1 - actual theme  ? */}
-      {/* <section className="w-full flex-center h-screen flex-col">
-      </section> */}
+      {/* <SECTION 1 - actual theme  ? */}
+      <section className=" bg-blackColor w-full h-screen flex flex-center justify-center ">
+        <div className= 'w-[80%] h-[full] pt-[5rem] px-10 flex flex-col items-center text-whiteColor'>
+        <div className='w-60 mb-8 relative flex justify-center items-center'>
+            <Image
+              src="/img/paint_stroke.svg"
+              alt="paint Stroke"
+              width={200} 
+              height={45}
+              className="transform rotate-[-5deg]"
+              />
+            <p className='w-full text-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursive font-cursive cursive-medium '>Special moments </p>
+          </div>
+          <h2 className="title-medium mb-2 pb-10">All for christmas</h2>
+          <div className=' w-full h-[60%] flex flex-row items-center justify-center gap-6 px-10'>
+            <div className='bg-orange-700 w-[33%] h-[100%] '></div>
+            <div className='bg-darkGrey w-[33%] h-[100%] border-b border-accentColor'>
+              <div>
+                <Image
+                src="/img/snowflake.svg"
+                alt="snowflake logo"
+                width={80} 
+                height={80}
+                />
+              </div>
+              <p>Christmas Spirit</p>
+              <p>Some text about Christmas ! </p>
+              <p>Cras dapibus, augue quis scelerisque ultricies, felis</p>
+              <button>DISCOVER</button>
+            </div>
+            <div className='bg-orange-700 w-[33%] h-[100%]'></div>
+          </div>
+        </div>
+      </section>
 
       {/* SECTION 1 - latest articles  */}
       {/* <section className="w-full flex-center flex-col h-screen bg-purple-900">
