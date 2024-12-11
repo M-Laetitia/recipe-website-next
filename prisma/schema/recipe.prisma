@@ -7,6 +7,7 @@ model Recipe {
     image String
     slug String @unique
     createdAt DateTime @default(now())
+    userId String
     
     reviews Review[]
     steps Step[]
@@ -14,8 +15,6 @@ model Recipe {
     ingredients IngredientRecipe[]
     categories  CategoryRecipe[]
     
-    userId String   @db.ObjectId
-    user   User  @relation(fields: [userId], references: [id])
-    @@index([userId])
+   
 }
 
