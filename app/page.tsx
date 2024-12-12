@@ -7,6 +7,8 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
+import Button from '@/components/Button'
+import CursiveLabel from '@/components/CursiveLabel'
 
 type Category = {
   id: string;
@@ -21,9 +23,12 @@ type Recipe = {
   image: string;
 };
 
+
+
 const Home = () => {
   const [categories, setCategories] = useState([])
   const [recipes, setRecipes] = useState([])
+  const [themeRecipes, setThemeRecipes] = useState([])
   const colors = ['#D98341', '#EAEAEA', '#0B161A']
   const borderColors = ['#D98341', '#EAEAEA', '#D98341']
   const fontColors = ['#EAEAEA', '#D98341', '#EAEAEA']
@@ -45,6 +50,18 @@ const Home = () => {
     }
     fetchRecipes();
   }, [])
+
+  useEffect (() => {
+    const fetchThemeRecipes = async() => {
+      const response = await fetch('/api/recipe?limit=2&category=Dessert')
+      const data = await response.json()
+      setThemeRecipes(data)
+      console.log('christmas', data)
+    }
+    fetchThemeRecipes();
+  }, [])
+
+
 
   // const url = getCldImageUrl({
   //   width: 960,
@@ -78,16 +95,7 @@ const Home = () => {
       {/* SECTION 1 - CATEGORIES */}
       <section className="w-full flex flex-col  items-center h-screen bg-blackColor">
         <div className='w-[80%] h-full pt-[5rem] px-10 flex flex-col items-center text-whiteColor'>
-          <div className='mb-8 relative flex'>
-            <Image
-              src="/img/paint_stroke.svg"
-              alt="paint Stroke"
-              width={200} 
-              height={45}
-              className="transform rotate-[-5deg]"
-              />
-            <p className='w-full text-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursive font-cursive cursive-medium '>Some words ! </p>
-          </div>
+          <CursiveLabel text="Some words !" />
           <h2 className="title-medium mb-2">Recipes by category</h2>
           <p className='text-small w-[70%] mb-20 text-center'>
             Explore Recipes by Category - 
@@ -221,21 +229,32 @@ const Home = () => {
       {/* <SECTION 1 - actual theme  ? */}
       <section className=" bg-blackColor w-full h-screen flex flex-center justify-center ">
         <div className= 'w-[80%] h-[full] pt-[5rem] px-10 flex flex-col items-center text-whiteColor'>
-        <div className='w-60 mb-8 relative flex justify-center items-center'>
-            <Image
-              src="/img/paint_stroke.svg"
-              alt="paint Stroke"
-              width={200} 
-              height={45}
-              className="transform rotate-[-5deg]"
-              />
-            <p className='w-full text-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 cursive font-cursive cursive-medium '>Special moments </p>
-          </div>
-          <h2 className="title-medium mb-2 pb-10">All for christmas</h2>
+          <CursiveLabel text="Special moments" />
+          <h2 className="title-medium mb-2 pb-10">All About Christmas</h2>
           <div className=' w-full h-[60%] flex flex-row items-center justify-center gap-6 px-10'>
-            <div className='bg-orange-700 w-[33%] h-[100%] '></div>
-            <div className='bg-darkGrey w-[33%] h-[100%] border-b border-accentColor'>
-              <div>
+
+          {themeRecipes.map((recipe: Recipe, index: number) => (
+            <div 
+                key={recipe.id} 
+                className={`w-[33%] h-[100%] ${index === 0 ? 'order-first' : 'order-last'}`}
+              >
+                <Image
+                  className="h-full w-full object-cover object-center"
+                  src={getCldImageUrl({
+                    src: recipe.image,
+                    width: 640,
+                    height: 800,
+                    crop: 'fit',
+                  })}
+                  alt={recipe.name}
+                  width={640}
+                  height={800}
+                />
+              </div>
+            ))}
+
+            <div className='bg-darkGrey w-[33%] h-[100%]  flex-row border-b border-accentColor relative pt-14 px-8 order-2'>
+              <div className='absolute -top-10 left-1/2 transform -translate-x-1/2 -translate-y-0'>
                 <Image
                 src="/img/snowflake.svg"
                 alt="snowflake logo"
@@ -243,15 +262,19 @@ const Home = () => {
                 height={80}
                 />
               </div>
-              <p>Christmas Spirit</p>
-              <p>Some text about Christmas ! </p>
-              <p>Cras dapibus, augue quis scelerisque ultricies, felis</p>
-              <button>DISCOVER</button>
+              <p className='cursive text-accentColor text-center text-4xl tracking-wide mb-10'>Christmas Spirit</p>
+              <p className='text-2xl uppercase tracking-widest leading-tight text-center mb-12'>The holiday season has arrived ! </p>
+              <p className='font-light text-xl text-center leading-tight mb-12'>It's the most wonderful time of the year ! Discover delicious, festive recipes that bring warmth and joy to your table.</p>
+              <div className='flex items-center justify-center'>
+                <Button text="DISCOVER" className="text-center" />
+              </div>
             </div>
-            <div className='bg-orange-700 w-[33%] h-[100%]'></div>
+
           </div>
         </div>
       </section>
+
+
 
       {/* SECTION 1 - latest articles  */}
       {/* <section className="w-full flex-center flex-col h-screen bg-purple-900">
