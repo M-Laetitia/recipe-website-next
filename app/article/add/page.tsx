@@ -53,7 +53,7 @@ const AddArticle = () => {
                
                // Upload vers Cloudinary
                const uploadResponse = await fetch(
-                   `https://api.cloudinary.com/v1_1/dnaj562e7/image/upload`,
+                   `https://api.cloudinary.com/v1_1//${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
                    {
                        method: 'POST',
                        body: uploadData
@@ -91,20 +91,15 @@ const AddArticle = () => {
             if (error instanceof z.ZodError) {
               // Gérer les erreurs de validation Zod
               error.errors.forEach((err) => {
-                if (err.path[0] === "title") {
-                  setError("title", { message: err.message });
-                }
-                if (err.path[0] === "content") {
-                  setError("content", { message: err.message });
-                }
-                if (err.path[0] === "image") {
-                  setError("image", { message: err.message });
-                }
-              });
+                setError(err.path[0] as "title" | "content" | "image", { 
+                    message: err.message 
+                });
+            });
             } else {
-              console.error(error);
+                console.error(error);
             }
-          }
+            
+        }
     };
 
     // Gestion de la sélection d'image
