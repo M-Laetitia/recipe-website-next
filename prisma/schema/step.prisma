@@ -1,6 +1,7 @@
 model Step {
     id String @id @default(auto()) @map("_id") @db.ObjectId
     number Int
+    title String?
     description String
     duration Int
 
