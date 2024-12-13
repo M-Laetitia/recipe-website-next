@@ -65,7 +65,7 @@ export async function GET(request: NextRequest, { params }: Props) {
         try {
           const user = await clerkClient.users.getUser(recipe.userId);
           return {
-            ...recipe,
+            
             user: {
               id: user.id,
               username: user.username || null,
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest, { params }: Props) {
           };
         } catch (error) {
           console.error(`Erreur lors de la récupération de l'user pour la recette ${recipe.id}:`, error);
-          return { ...recipe, user: null };
+          return { user: null };
         }
       })();
 
@@ -99,12 +99,12 @@ export async function GET(request: NextRequest, { params }: Props) {
       );
   
       const recipeWithUserAndReviews = {
-        ...recipe,
-        user: recipeWithUser,
-        reviews: reviewsWithUsers,
-      }
+        ...recipe,  
+        user: recipeWithUser.user, 
+        reviews: reviewsWithUsers, 
+      };
   
-      // console.log("recette détail + user + reviews user", recipeWithUserAndReviews);
+      console.log("recette détail + user + reviews user", recipeWithUserAndReviews);
   
         return NextResponse.json(recipeWithUserAndReviews);
       } catch (error) {
