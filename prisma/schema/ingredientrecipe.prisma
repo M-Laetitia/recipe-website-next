@@ -2,7 +2,7 @@ model IngredientRecipe {
     id String @id @default(auto()) @map("_id") @db.ObjectId
 
     quantity    Float
-    unit        String 
+    unit        String?
     
     recipeId String @db.ObjectId
     recipe Recipe @relation(fields: [recipeId], references: [id], onUpdate: Cascade, onDelete: Cascade)
