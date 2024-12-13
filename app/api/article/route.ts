@@ -49,3 +49,45 @@ export async function GET() {
         return new NextResponse("Internal Error", {status: 500})
     }
 }
+
+export async function POST(req: Request) {
+    try{
+        const body = await req.json();
+        const { title, content} = body;
+
+
+        // Validation des champs
+        if (!title || typeof title !== "string") {
+            return NextResponse.json({ message: "Invalid title article" }, { status: 400 });
+        }
+
+        if (!content || typeof content !== "string") {
+            return NextResponse.json({ message: "Invalid content article" }, { status: 400 });
+        }
+
+        // ajouter le slug 
+        const slug = title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+
+        const userId= 'user_2q5MoDx5nUHSVNwhbg7vrmJ5jAC';
+
+
+        // Création de l'article
+        const newArticle = await db.article.create({
+            data: { 
+                title, 
+                content, 
+                slug, 
+                userId 
+            },
+        });
+
+        return NextResponse.json(newArticle, { status:201 });
+
+    } catch (error) {
+        console.log("Error", error);
+        return NextResponse.json(
+            { message: "Internal Server Error" },
+            { status: 500 }
+        );
+    }
+}
