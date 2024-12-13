@@ -53,12 +53,14 @@ type Tool = {
 type Category = {
     id: string;
     name: string;
+    
 };
 type Step = {
     id: string;
     number: string;
     duration: number;
-    description: string
+    description: string;
+    title: string;
 };
 
 type User = {
@@ -84,18 +86,16 @@ const RecipePage = ({ params }: Props)  => {
       }, [params]); 
 
     useEffect(() => {
-        console.log('passe ici')
         const fetchRecipe = async () => {
             const response = await fetch(`/api/recipe/${recipeId}`);
             const data = await response.json();
-            console.log('datas',data); 
             setRecipe(data);
         };
 
         if (recipeId) {
         fetchRecipe();
         }
-        console.log(`/api/recipe/${recipeId}`);
+        // console.log(`/api/recipe/${recipeId}`);
     }, [recipeId]);
     // }, [params.recipeId]);
 
@@ -137,6 +137,8 @@ const RecipePage = ({ params }: Props)  => {
         return <p>Loading recipe...</p>;
     }
 
+    console.log('page recette ind', recipe)
+
     // datas pour les onglets 
      // S'assurer que `recipe` n'est pas null avant d'accéder à ses propriétés
     const tabsData = recipe
@@ -145,15 +147,27 @@ const RecipePage = ({ params }: Props)  => {
                 name: "Tools",
                 items: recipe.tools.map((tool: Tool) => tool.tool.name) || [],
             },
+            // {
+            //     name: "Ingredients",
+            //     items: recipe.ingredients.map(
+            //         (ing: Ingredient) => ` ${ing.quantity}${ing.unit} ${ing.ingredient.name}`
+            //     ) || [],
+            // }
             {
                 name: "Ingredients",
-                items: recipe.ingredients.map((ing: Ingredient) => ing.ingredient.name) || [],
-            },
+                items: recipe.ingredients.map(
+                    (ing: Ingredient) =>
+                        `${ing.ingredient.name} - ${ing.quantity} ${ing.unit ? ing.unit : ""} `  //.trim() : Supprime les espaces inutiles si unit est absent.
+                ) || [],
+            }
+
+           
+            
             ]
     : [];
-            console.log('recipe', recipe)
+            // console.log('recipe', recipe)
 
-            console.log('tabs content', tabsData)
+            // console.log('tabs content', tabsData)
     return (
         <div>
             <h1>Recipe : {recipe.name}</h1>
@@ -197,7 +211,8 @@ const RecipePage = ({ params }: Props)  => {
                 { recipe && recipe.steps.length > 0 ? (
                     recipe.steps.map((step: Step, index: number) => (
                         <div key={step.id || index}>
-                            <p>{step.number} - {step.description} - {step.duration}min</p>
+                            <p>{step.number} {step.title}  {step.duration}min</p>
+                            <p>{step.description} </p>
                         </div>
                     ))
                 ) : (
@@ -205,7 +220,7 @@ const RecipePage = ({ params }: Props)  => {
                 )}
             </div>
 
-            <h3>INGREDIENTS</h3>
+            {/* <h3>INGREDIENTS</h3>
             <div>
                 { recipe && recipe.ingredients.length > 0 ? (
                     recipe.ingredients.map((ingredient: Ingredient, index: number) => (
@@ -228,7 +243,7 @@ const RecipePage = ({ params }: Props)  => {
                 ) : (
                     <div >No tools</div>
                 )}
-            </div>
+            </div> */}
             <h3>REVIEWS</h3>
             <div>
                 { recipe && recipe.reviews.length > 0 ? (
@@ -245,7 +260,7 @@ const RecipePage = ({ params }: Props)  => {
                 )}
             </div>
 
-            <h3>TEST TABS with headlessui</h3>
+            <h3>TABS</h3>
             <div>
                 <TabGroup>
                 {/* Onglets */}
