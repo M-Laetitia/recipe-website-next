@@ -1,10 +1,10 @@
 import { db} from "@/lib/db"
 import { NextRequest, NextResponse } from "next/server";
+import { clerkClient } from "@clerk/express"; 
 
 type Props = {
   params: Promise<{ recipeId: string }>
 }
-
 
 export async function GET(request: NextRequest, { params }: Props) {
 
@@ -15,11 +15,6 @@ export async function GET(request: NextRequest, { params }: Props) {
           id: recipeId, 
         },
         include: {
-            user: {  
-                select: {
-                  username: true,  
-                },
-            },
             categories: {
               include: {
                 category: { 
@@ -54,24 +49,64 @@ export async function GET(request: NextRequest, { params }: Props) {
             },
         },
         reviews: {
-            orderBy: {
-              createdAt: 'desc', // Tri des steps par 'number' en ordre croissant
-            },
-            include: {
-                user: {  // Inclusion de l'utilisateur
-                    select: {
-                      username: true,  // Sélectionne uniquement l'username
-                    },
-                }
-            }
+          orderBy: {
+            createdAt: 'desc', 
+          },
         },
         },
       });
+
+      if (!recipe) {
+        return new NextResponse("Recipe not found", { status: 404 });
+      }
   
+
+      const recipeWithUser = await (async () => {
+        try {
+          const user = await clerkClient.users.getUser(recipe.userId);
+          return {
+            ...recipe,
+            user: {
+              id: user.id,
+              username: user.username || null,
+            },
+          };
+        } catch (error) {
+          console.error(`Erreur lors de la récupération de l'user pour la recette ${recipe.id}:`, error);
+          return { ...recipe, user: null };
+        }
+      })();
+
+      const reviewsWithUsers = await Promise.all(
+        recipe.reviews.map(async (review) => {
+          try {
+            const user = await clerkClient.users.getUser(review.userId);
+            return {
+              ...review,
+              user: {
+                id: user.id,
+                username: user.username || null,
+              },
+            };
+          } catch (error) {
+            console.error(`Erreur lors de la récupération de l'user pour la review ${review.id}:`, error);
+            return {
+              ...review,
+              user: null,
+            };
+          }
+        })
+      );
   
-      console.log("recette détail", recipe);
+      const recipeWithUserAndReviews = {
+        ...recipe,
+        user: recipeWithUser,
+        reviews: reviewsWithUsers,
+      }
   
-        return NextResponse.json(recipe);
+      // console.log("recette détail + user + reviews user", recipeWithUserAndReviews);
+  
+        return NextResponse.json(recipeWithUserAndReviews);
       } catch (error) {
         console.error("[RECIPES] Error:", error);
         return new NextResponse("Internal Error", { status: 500 });
