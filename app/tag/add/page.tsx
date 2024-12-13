@@ -28,7 +28,7 @@ const AddTag = () => {
         defaultValues: {
           name: "",
         }
-      });
+    });
     
     console.log(watch("name"));  // you can watch individual input by pass the name of the input
 
