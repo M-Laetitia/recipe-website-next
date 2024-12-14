@@ -4,10 +4,12 @@ import { useForm ,} from "react-hook-form";
 import { CldUploadWidget } from 'next-cloudinary'
 import { useEffect, useState } from 'react';
 
+
+//& SCHEMA ZOD ------------------------------------------------------------
 const recipeSchema = z.object({
     name: z.string().min(5, { message: "Name must be at least 5 characters long" }).min(1,{ message: "Name is required" }),
     instruction: z.string().min(1, {message: "Description is required"}),
-    duration: z.number({ required_error: "Cooking time field is missing" }).min(1, 'Cooking time must be greater than 0'),
+    duration: z.number({ required_error: "Please provide the cooking time" }).min(1, 'Cooking time must be greater than 0'),
     difficulty: z.string().min(1, { message: "Please select a difficulty" }),
     categoryId: z.string().min(1, 'Category is required'),
     selectedCategories: z.array(
@@ -21,19 +23,23 @@ const recipeSchema = z.object({
 
 type RecipeFormData = z.infer<typeof recipeSchema>;
 
-// INTERFACE : 
+//& INTERFACE -------------------------------------------------------------
 interface Category {
     id: string;
     name: string;
     isPrimary : boolean; 
 }
 
+//& COMPOPNENT DECLARATION ------------------------------------------------
+
 const AddRecipe = () => {
+    //~ useForm -----------------------------------------------------------
     const {
         register,
         handleSubmit,
         setError,
         clearErrors,
+        reset,
         watch,
         setValue,
         formState: { errors },
@@ -48,47 +54,22 @@ const AddRecipe = () => {
         },
     });
 
+    //~ Initialisations ---------------------------------------------------
     // const [secondcategories, setSecondCategories] = useState<{ id: string; name: string }[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [secondcategories, setSecondCategories] = useState<Category[]>([]);
 
-    // État pour gérer les categs sélectionnés
-    const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
 
-    // Filtrer les categs  disponibles en excluant ceux déjà sélectionnés
+    //~ Dynamic variables  ------------------------------------------------
+    // État pour gérer les categs sélectionnées
+    const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
+    // Filtrer les categs  disponibles en retirant celles déjà sélectionnées
     const availableCategories = secondcategories.filter(
         category => !selectedCategories.some(selected => selected.id === category.id)
     );
 
-    // Gérer l'ajout d'une nouvelle categ
-    const handleCategoryAdd = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const categoryId = event.target.value;
-        if (!categoryId || selectedCategories.length >= 3) return;
-
-        const categoryToAdd = secondcategories.find(category => category.id === categoryId);
-        if (categoryToAdd) {
-            // const newCategories = [...selectedCategories, categoryToAdd];
-            const newCategories = [
-                ...selectedCategories, 
-                { id: categoryToAdd.id, isPrimary: categoryToAdd.isPrimary, name: categoryToAdd.name }
-            ];
-            setSelectedCategories(newCategories);
-            setValue('selectedCategories', newCategories); // On passe l'objet complet
-        }
-        
-        // Réinitialiser le select
-        event.target.value = '';
-    };
-
-     // Gérer la suppression d'une categ
-    const handleCategoryRemove = (categoryToRemove: Category) => {
-        const newCategories = selectedCategories.filter(category => category.id !== categoryToRemove.id);
-        setSelectedCategories(newCategories);
-        setValue('selectedCategories', newCategories); // On passe l'objet complet
-    };
-
-    // Fetch datas 
-    // category - primary :
+    //~ Fetch datas -------------------------------------------------------
+    //~ Main category ----------------
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -98,6 +79,7 @@ const AddRecipe = () => {
                 }
 
                 const data = await response.json();
+                // const data: CategoryResponse[] = await response.json(); // Typage explicite
                 setCategories(data);
             } catch (error) {
                 console.log("error", error);
@@ -106,7 +88,7 @@ const AddRecipe = () => {
         fetchCategories();
     }, []);
 
-    // category - non primary :
+    //~ Other categories -------------
     useEffect(() => {
         const fetchSecondCategories = async () => {
             try {
@@ -124,7 +106,66 @@ const AddRecipe = () => {
         fetchSecondCategories();
     }, []);
 
+    // un seul useEffect : 
+    // useEffect(() => {
+    //     const fetchCategoriesData = async (isMain: boolean) => {
+    //         try {
+    //             const response = await fetch(`/api/category?main=${isMain}`);
+    //             if (!response.ok) throw new Error("Failed to fetch categories");
+    //             return await response.json();
+    //         } catch (error) {
+    //             console.error(error);
+    //         }
+    //     };
 
+    //     fetchCategoriesData(true).then(setCategories);
+    //     fetchCategoriesData(false).then(setSecondCategories);
+    // }, []);
+
+
+    //& BUSINESS LOGIC AND FUNCTIONS --------------------------------------
+
+    //~ CATEGORIES
+    //~ Add new categories -------------
+    // fonction qui se déclenche lorsqu'un événement change se produit sur un élément <select> dans le formulaire. 
+    const handleCategoryAdd = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        // on stocke la valeur sélectionnée par l'user (ici l'id de la catégorie)
+        const categoryId = event.target.value;
+        // on vérifie si la catégorie est vide et si le nb de catégoriés sélectionnées est déjà égal ou supérieure à 3 
+        if (!categoryId || selectedCategories.length >= 3) return;
+
+        // on cherche la catégorie correspondante dan secondcategories grâce à l'id
+        const categoryToAdd = secondcategories.find(category => category.id === categoryId);
+        // si la catégorie est trouvée donc on ajoute cette catégorie dans selectedCategories
+        if (categoryToAdd) {
+            // const newCategories = [...selectedCategories, categoryToAdd];
+            // on crée une nvelle list newCategories à laquelle on ajoute  la catégorie sélectionnée(sous forme d'objet) à la fin de la liste selectedCategories
+            const newCategories = [
+                ...selectedCategories, 
+                { id: categoryToAdd.id, isPrimary: categoryToAdd.isPrimary, name: categoryToAdd.name }
+            ];
+            // on met à jour l'état de selectedCategories avec la nvelle liste et donc la nvelle catégorie ajoutée
+            setSelectedCategories(newCategories);
+            // met à jour le formulaire pour enregistrer les catégories sélectionnées dans le champ selectedCategories
+            setValue('selectedCategories', newCategories); 
+        }
+        // reset le select
+        event.target.value = '';
+    };
+
+
+    //~ remove categories -------------
+    // fonction qui se déclenche quand un user veut retirer une catégorie, elle prend un param categoryToRemove (> catégorie à retirer)
+    const handleCategoryRemove = (categoryToRemove: Category) => {
+        // nouvelle liste de créee, on filtre la liste SelecteCategories pour retirer la catégorie ayant le même ID que categoryToRemove. La méthode filter renvoie un nouveau tableau avant l'élèment à retirer en moins 
+        const newCategories = selectedCategories.filter(category => category.id !== categoryToRemove.id);
+        // met à jour l"était selectedCategories avec la nvelle liste qui contient plus la categ supprimée
+        setSelectedCategories(newCategories);
+        // met à jour le formulaire avec la nvelle liste des catégories sélectionnées 
+        setValue('selectedCategories', newCategories); 
+    };
+
+    //~ onSubmit function -------------
     const onSubmit = async (formData: RecipeFormData) => {
         console.log("Form Data Submitted:", formData);
         try {
@@ -141,12 +182,14 @@ const AddRecipe = () => {
             if (!response.ok) {
                 throw new Error("Failed to add article");
               }
-              
+
             console.log('check validateData', validateData )
             console.log('check formData', formData )
             console.log('check response', response )
             
             alert("Recipe added successfully!");
+            reset(); 
+            setSelectedCategories([]);
 
         } catch (error) {
             if (error instanceof z.ZodError) {
@@ -159,14 +202,14 @@ const AddRecipe = () => {
             } else {
                 console.error(error);
             }
-            
         }
     }
 
+
+    {/* Form > à ajouter  / image?  / steps / tools / ingredients /  */}
     return (
         <>
             <h1>Add a recipe</h1>
-
             <div className="flex flex-col">
                 <form 
                     className="flex flex-col w-[30%]"
@@ -181,8 +224,6 @@ const AddRecipe = () => {
                         className="text-black"
                         id="name"
                         type= "text"
-
-                        
                     />
                     {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
 
@@ -211,7 +252,6 @@ const AddRecipe = () => {
                         {...register("difficulty")}
                         className="text-black"
                         id="difficulty"
-                        
                         >
                         <option value="" disabled>Select a difficulty</option>
                         <option value="1">1</option>
@@ -227,12 +267,12 @@ const AddRecipe = () => {
                         {...register("categoryId")}
                         className="text-black"
                         id="category"
-                    >
+                        >
                         <option value="" disabled>Choose a category</option>
                         {categories.map((category: { id: string; name: string }) => (
-                                <option key={category.id} value={category.id}>
-                                    {category.name}
-                                </option>
+                            <option key={category.id} value={category.id}>
+                                {category.name}
+                            </option>
                         ))}
                     </select>
                     {errors.categoryId && <p className="text-red-500 text-sm mt-1">{errors.categoryId.message}</p>}
@@ -270,17 +310,10 @@ const AddRecipe = () => {
                         </div>
                         ))}
                     </div>
-
-
                     <br />
                     <button type="submit">Add recipe</button>
                 </form>
-
             </div>
-
-            {/* Form > name / instruction / duration / difficulty / image ? / slug / userId / steps / tools / ingredients /  */}
-
-
         </>
     )
 }
