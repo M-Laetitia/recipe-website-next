@@ -4,12 +4,15 @@ import { getCldImageUrl } from 'next-cloudinary';
 import React, { useEffect, useState } from 'react'
 import { jsPDF } from "jspdf"; 
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
+import Image from 'next/image';
+import CursiveLabel from '@/components/CursiveLabel';
+import Tag from '@/components/Tag';
+import DifficultyRating from '@/components/DifficultyRating';
+import { Clock4, MessageSquareText  } from 'lucide-react';
 
 
-// const RecipePage =  ({ params }: { params: { recipeId: string }}) => {
-//     const [recipe, setRecipe] = useState<any | null>(null) 
-// Initialisation avec null pour indiquer qu'il n'y a pas encore de recette
 
+//& TYPE ------------------------------------------------------------------
 type Recipe = {
     id: string;
     name: string;
@@ -52,7 +55,10 @@ type Tool = {
 
 type Category = {
     id: string;
-    name: string;
+    category: {
+        name: string;
+        isPrimary : boolean;
+    };
     
 };
 type Step = {
@@ -90,14 +96,14 @@ const RecipePage = ({ params }: Props)  => {
             const response = await fetch(`/api/recipe/${recipeId}`);
             const data = await response.json();
             setRecipe(data);
+            console.log('data recette', data)
         };
 
         if (recipeId) {
-        fetchRecipe();
+            fetchRecipe();
         }
-        // console.log(`/api/recipe/${recipeId}`);
+
     }, [recipeId]);
-    // }, [params.recipeId]);
 
     const generatePDF = () => {
         if (recipe) {
@@ -137,10 +143,9 @@ const RecipePage = ({ params }: Props)  => {
         return <p>Loading recipe...</p>;
     }
 
-    console.log('page recette ind', recipe)
 
     // datas pour les onglets 
-     // S'assurer que `recipe` n'est pas null avant d'accéder à ses propriétés
+    // S'assurer que `recipe` n'est pas null avant d'accéder à ses propriétés
     const tabsData = recipe
         ? [
             {
@@ -165,47 +170,106 @@ const RecipePage = ({ params }: Props)  => {
             
             ]
     : [];
-            // console.log('recipe', recipe)
 
-            // console.log('tabs content', tabsData)
+    // & RETURN ----------------------------------------------------------------
     return (
-        <div>
-            <h1>Recipe : {recipe.name}</h1>
-            <button onClick={generatePDF}>Générer le PDF</button>
-            <figure>
-                <img
-                    src={getCldImageUrl({
-                    src: recipe.image,
-                    width: 960,
-                    height: 600,
-                    crop: 'fit'
-                    })}
-                    alt={recipe.name}
-                />
-            </figure>
-            <p>Description: {recipe.instruction}</p>
+        <div className='bg-darkGrey w-[65%]  m-auto pt-24'>
+            <div className=' flex flex-col items-center justify-center mb-20 '>
+                <CursiveLabel text="Let's cook !" />
+                <div className='flex items-center justify-center gap-4'>
+                    <h1 className='text-4xl font-normal uppercase tracking-[3px]'>{recipe.name}</h1>
+                    <Image 
+                    src = "/img/zigzag.svg"
+                    width={120}
+                    height={30}
+                    objectFit="contain"
+                    alt= "zigzag icon"
+                    />
+                </div>
+            </div>
+
+
+            {/* //& TOP ----------------------------------------------------- */}
+            <div className='w-full h-[550px] flex gap-24'>
+                
+                <div className='w-[60%] h-full relative'>
+                    {/* //~ Instructions -------------------------------------------- */}
+                    <div className='text-xl font-light mb-9'>
+                        {recipe.instruction}
+                    </div>
+                    
+                    {/* //~ Tags ---------------------------------------------------- */}
+                    <div className='flex gap-5'>
+                        { recipe && recipe.categories.length > 0 ? (
+                            recipe.categories.map((category: Category, index: number) => (
+                                <Tag 
+                                key={category.id || index}
+                                text={`#${category.category.name}`} 
+                                bgColor={category.category.isPrimary ? "var(--accentColor)" : "var(--darkGrey)"} 
+                            />
+                            ))
+                        ) : (
+                            <div >No categories available</div>
+                        )}
+                    </div>
+
+                    {/* //~ Infos --------------------------------------------------- */}
+                    <div className='bg-lightGrey w-[calc(100%+16rem)] h-36 z-10 absolute bottom-16 flex '>
+                        <div className='flex'>
+                            <div>
+                                <p>Cooking time</p>
+                                <div className='flex'><Clock4 /><p>{recipe.duration}min</p> </div>
+                            </div>
+                            <div>
+                                <p>Difficulty</p>
+     
+                                <div>
+                                <DifficultyRating difficulty= {recipe.difficulty} />
+                                </div>
+                                
+                            </div>
+                            <div >
+                                <p>Review</p>
+                                <div className='flex'> <MessageSquareText /><p> 2 </p></div>
+                            </div>
+                        </div>
+                        <div>
+                            <p>♥</p>
+                        </div>
+
+                    </div>
+                </div>
+
+                {/* //~ Image --------------------------------------------------- */}
+                <div className="w-[40%] h-full">
+                    <figure className="w-full h-full relative">
+                        <Image
+                            src={getCldImageUrl({
+                                src: recipe.image,
+                                width: 960,
+                                height: 600,
+                                crop: 'fit',
+                            })}
+                            alt={recipe.name}
+                            fill
+                            className="object-cover"
+                        />
+                    </figure>
+                </div>
+            </div>
+
+            {/* //& STEPS / TOOLS / ING ------------------------------------- */}
+            <p>Description: </p>
             {/* <p>Creation date: {new Date(recipe.createdAt).toLocaleDateString()}</p> */}
             <p> Date: {formatDate(recipe.createdAt)}</p>
-            <p>Duration: {recipe.duration}min</p>
-            <p>Difficulty: {recipe.difficulty} /5</p>
+           
+        
             <p>Created by: {recipe.user?.username || 'Unknown'}</p>
             <p></p>
 
-            <h3>CATEGORIES:</h3>
-            <div>
-            <div>
-                { recipe && recipe.categories.length > 0 ? (
-                    recipe.categories.map((category: Category, index: number) => (
-                        <div key={category.id || index}>
-                            <p>{category.name}</p>
-                        </div>
-                    ))
-                ) : (
-                    <div >No categories available</div>
-                )}
-            </div>
 
-            </div>
+            <button onClick={generatePDF}>Générer le PDF</button>
+           
             <h2>STEPS : </h2>
             <div>
                 { recipe && recipe.steps.length > 0 ? (
