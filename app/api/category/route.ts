@@ -1,12 +1,20 @@
 import { db} from "@/lib/db"
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(req: Request) {
+    const { searchParams } = new URL(req.url); //extraire les paramètres de la requête
+    const main = searchParams.get("main"); 
+    // const main = searchParams.get("main") === "true"; 
+
+    let whereClause = {};
+    if (main === "true") {
+        whereClause = { isPrimary: true };
+    } else if (main === "false") {
+        whereClause = { isPrimary: false };
+    }
+
     try {
         const categories = await db.category.findMany({
-            where: {
-                isPrimary: true,
-            },
             orderBy: {
                 number: 'asc',
             },
@@ -17,6 +25,12 @@ export async function GET() {
                     }
                 },
             },
+            // ...(main && { 
+            //     where : {
+            //         isPrimary: true,
+            //     }
+            // }),
+            where: whereClause,
         });
 
         // Calculer le nb de recettes par catégories
