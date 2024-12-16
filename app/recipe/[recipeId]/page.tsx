@@ -8,6 +8,7 @@ import Image from 'next/image';
 import CursiveLabel from '@/components/CursiveLabel';
 import Tag from '@/components/Tag';
 import DifficultyRating from '@/components/DifficultyRating';
+import FavoriteIcon from '@/components/FavoriteIcon';
 import { Clock4, MessageSquareText  } from 'lucide-react';
 
 
@@ -193,10 +194,13 @@ const RecipePage = ({ params }: Props)  => {
             <div className='w-full h-[550px] flex gap-24'>
                 
                 <div className='w-[60%] h-full relative'>
-                    {/* //~ Instructions -------------------------------------------- */}
+                    {/* //~ Description --------------------------------------------- */}
                     <div className='text-xl font-light mb-9'>
                         {recipe.instruction}
                     </div>
+
+                        <div><FavoriteIcon /></div>
+                    
                     
                     {/* //~ Tags ---------------------------------------------------- */}
                     <div className='flex gap-5'>
@@ -222,7 +226,7 @@ const RecipePage = ({ params }: Props)  => {
                             </div>
                             <div>
                                 <p>Difficulty</p>
-     
+                 
                                 <div>
                                 <DifficultyRating difficulty= {recipe.difficulty} />
                                 </div>

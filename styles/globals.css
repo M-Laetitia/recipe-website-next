@@ -6,15 +6,17 @@
 :root {
   --blackColor: #0B161A; 
   --darkGrey: #141E20;
+  --lightGrey: #1A292C;
   --accentColor: #D98341;
   --whiteColor: #EAEAEA;
 }
 
 .light {
   --blackColor: #EAEAEA; 
-  --darkGrey: #0B161A;
+  --darkGrey: #b2c5c9;
+  --lightGrey: #7cb9c5;
   --accentColor: #D98341; 
-  --whiteColor: #0B161A;
+  --whiteColor: #000000;
 }
 
 * {
