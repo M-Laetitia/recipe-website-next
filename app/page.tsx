@@ -35,7 +35,7 @@ const Home = () => {
 
   useEffect (() => {
     const fetchCategories = async() => {
-      const response = await fetch('/api/category')
+      const response = await fetch('/api/category?main=true')
       const data = await response.json()
       setCategories(data)
     }
