@@ -275,7 +275,7 @@ const RecipePage = ({ params }: Props)  => {
                 </div>
             </div>
 
-            {/* //& STEPS / TOOLS / ING ------------------------------------- */}
+            {/* //& STEPS / TOOLS / INGREDIENTS ----------------------------- */}
 
             <div className='w-full h-[22rem] mt-14 flex gap-24'>
                 <div className='w-[60%] h-full'>
@@ -361,7 +361,35 @@ const RecipePage = ({ params }: Props)  => {
 
             </div>
 
+            {/* //& REVIEWS ------------------------------------------------- */}
 
+            <div className='flex flex-col justify-center  items-center mt-24 '>
+                <CursiveLabel text="Reviews" />
+
+                <div className='w-full h-64 mt-14'>
+                    { recipe && recipe.reviews.length > 0 ? (
+                        recipe.reviews.map((review: Review, index: number) => (
+                            <div key={review.id || index} className='flex mb-14 gap-10'>
+                                <div>
+                                    <div className='bg-pink-600 w-[100px] h-[100px]'></div>
+                                </div>
+                                <div>
+                                    <p>{review.user.username}</p>
+                                    <p>Titre du commentaire</p>
+                                    <p>{review.content}</p>
+                                
+                                    <p>{formatDate(review.createdAt)}</p>
+                                </div>
+                                
+                            </div>
+                        ))
+                    ) : (
+                        <div >No reviews</div>
+                    )}
+                </div>
+
+                <button>add a review</button>
+            </div>
 
     
             {/* <p>Creation date: {new Date(recipe.createdAt).toLocaleDateString()}</p> */}
@@ -371,26 +399,7 @@ const RecipePage = ({ params }: Props)  => {
             <p>Created by: {recipe.user?.username || 'Unknown'}</p>
             <p></p>
            
-            
 
-           
-            <h3>REVIEWS</h3>
-            <div>
-                { recipe && recipe.reviews.length > 0 ? (
-                    recipe.reviews.map((review: Review, index: number) => (
-                        <div key={review.id || index}>
-                            <p>{review.content} 
-                            {formatDate(review.createdAt)}
-                            - {review.user.username}</p>
-                            {/* <Link href={`/city/${city.id}`}>{city.name}</Link> */}
-                        </div>
-                    ))
-                ) : (
-                    <div >No reviews</div>
-                )}
-            </div>
-
-            <h3>TABS</h3>
 
         </div>
     );
