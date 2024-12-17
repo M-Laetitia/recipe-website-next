@@ -20,6 +20,8 @@ export async function GET(request: NextRequest, { params }: Props) {
                 category: { 
                   select: {
                     name: true,  
+                    isPrimary : true,
+                    id: true,
                   },
                 },
               },
