@@ -82,6 +82,8 @@ type Props = {
 const RecipePage = ({ params }: Props)  => {
     const [recipe, setRecipe] = useState<Recipe | null>(null); // Initialisation avec null
     const [recipeId, setRecipeId] = useState<string | null>(null);
+    const [stepCount, setStepCount] = useState(0); 
+    const [reviewCount, setReviewCount] = useState(0);
 
     useEffect(() => {
         const fetchRecipeId = async () => {
@@ -98,6 +100,10 @@ const RecipePage = ({ params }: Props)  => {
             const data = await response.json();
             setRecipe(data);
             console.log('data recette', data)
+
+            setStepCount(data.steps.length);
+            setReviewCount(data.reviews.length);
+
         };
 
         if (recipeId) {
@@ -147,11 +153,15 @@ const RecipePage = ({ params }: Props)  => {
 
     // datas pour les onglets 
     // S'assurer que `recipe` n'est pas null avant d'accéder à ses propriétés
-    const tabsData = recipe
+    const tabsDataTools = recipe
         ? [
             {
-                name: "Tools",
-                items: recipe.tools.map((tool: Tool) => tool.tool.name) || [],
+                name: "Ingredients",
+                items: recipe.ingredients.map(
+                    (ing: Ingredient) =>
+                        `${ing.ingredient.name} - ${ing.quantity} ${ing.unit ? ing.unit : ""} `  //.trim() : Supprime les espaces inutiles si unit est absent.
+                ) || [],
+                
             },
             // {
             //     name: "Ingredients",
@@ -160,17 +170,16 @@ const RecipePage = ({ params }: Props)  => {
             //     ) || [],
             // }
             {
-                name: "Ingredients",
-                items: recipe.ingredients.map(
-                    (ing: Ingredient) =>
-                        `${ing.ingredient.name} - ${ing.quantity} ${ing.unit ? ing.unit : ""} `  //.trim() : Supprime les espaces inutiles si unit est absent.
-                ) || [],
+                name: "Tools",
+                items: recipe.tools.map((tool: Tool) => tool.tool.name) || [],
             }
 
            
             
             ]
     : [];
+
+
 
     // & RETURN ----------------------------------------------------------------
     return (
@@ -199,8 +208,6 @@ const RecipePage = ({ params }: Props)  => {
                         {recipe.instruction}
                     </div>
 
-                        <div><FavoriteIcon /></div>
-                    
                     
                     {/* //~ Tags ---------------------------------------------------- */}
                     <div className='flex gap-5'>
@@ -218,30 +225,36 @@ const RecipePage = ({ params }: Props)  => {
                     </div>
 
                     {/* //~ Infos --------------------------------------------------- */}
-                    <div className='bg-lightGrey w-[calc(100%+16rem)] h-36 z-10 absolute bottom-16 flex '>
-                        <div className='flex'>
-                            <div>
-                                <p>Cooking time</p>
-                                <div className='flex'><Clock4 /><p>{recipe.duration}min</p> </div>
+                    <div className='bg-lightGrey w-[calc(100%+16rem)] h-36 flex flex-row z-10 absolute bottom-16 '>
+                        <div className='w-[80%] grid gap-4 grid-cols-3'>
+
+                            <div className='flex flex-col items-center justify-center'>
+                                <p className='text-accentColor uppercase text-xl mb-2'>Cooking time</p>
+                                <div className='flex gap-2 text-xl'><Clock4 /><p>{recipe.duration}min</p> </div>
                             </div>
-                            <div>
-                                <p>Difficulty</p>
-                 
-                                <div>
-                                <DifficultyRating difficulty= {recipe.difficulty} />
-                                </div>
-                                
+                            <div className='flex flex-col items-center justify-center'>
+                                <p className='text-accentColor uppercase text-xl mb-2'>Difficulty</p>
+                                <div ><DifficultyRating difficulty= {recipe.difficulty} /></div>
                             </div>
-                            <div >
-                                <p>Review</p>
-                                <div className='flex'> <MessageSquareText /><p> 2 </p></div>
+                            <div className='flex flex-col items-center justify-center'>
+                                <p className='text-accentColor uppercase text-xl mb-2'>Review</p>
+                                <div className='flex gap-2 text-xl'> <MessageSquareText /><p> {reviewCount}  </p></div>
                             </div>
-                        </div>
-                        <div>
-                            <p>♥</p>
+                            
                         </div>
 
+                        <div className=' w-[20%]  flex items-center justify-center'>
+                            <FavoriteIcon />
+                        </div>
                     </div>
+
+                    <div className='absolute bottom-6 gap-3 cursor-pointer hover:text-accentColor transition duration-300 ease-out' onClick={generatePDF}>
+                        <div className='flex items-center justify-center gap-2'>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+                            <p className='translate-y-1 '>DOWNLOAD PDF</p>
+                        </div>
+                    </div>
+
                 </div>
 
                 {/* //~ Image --------------------------------------------------- */}
@@ -263,55 +276,104 @@ const RecipePage = ({ params }: Props)  => {
             </div>
 
             {/* //& STEPS / TOOLS / ING ------------------------------------- */}
-            <p>Description: </p>
+
+            <div className='w-full h-[22rem] mt-14 flex gap-24'>
+                <div className='w-[60%] h-full'>
+                    <div>
+                        <h2 className='uppercase text-xl text-light py-2 '>{`STEPS (${stepCount})`} </h2>
+                    </div>
+
+                    <div className='w-full h-[85%] bg-lightGrey border-t border-accentColor'>
+                    
+                        <TabGroup>
+                            {/* étapes */}
+                            <TabPanels className="mt-4 h-[80%]">
+                            {recipe.steps.map((step: Step, index: number)=> (
+                                <TabPanel key={index} className="p-4  rounded shadow-none">
+                                    <div className='flex items-center mb-6'>
+                                        <p className='border border-accentColor rounded-full w-6 h-6 mr-5 text-center'>{step.number}</p>
+                                        <p className='text-xl mr-7'>{step.title}</p>
+                                        <p className='text-lg text-gray-400 font-light'>{step.duration} min</p>
+
+                                    </div>
+
+                                
+                                <p className='font-light text-lg'>{step.description}</p>
+                                </TabPanel>
+                            ))}
+                            </TabPanels>
+
+                            {/* dots de navigation */}
+                            <TabList className="flex justify-center mt-4 space-x-2 h-[20%]">
+                            {recipe.steps.map((_, index: number) => (
+                                <Tab
+                                key={index}
+                                className={({ selected }) =>
+                                    `w-3 h-3 rounded-full ${
+                                    selected ? 'bg-accentColor' : 'bg-gray-500'
+                                    }`
+                                }
+                                ></Tab>
+                            ))}
+                            </TabList>
+                        </TabGroup>
+                       
+                    </div>
+
+                </div>
+
+                <div className= 'w-[40%] '>
+                    <div>
+                        <TabGroup>
+                        {/* Onglets */}
+                        <TabList className="flex  border-b border-accentColor">
+                        {tabsDataTools.map((tab, index) => (
+                            <Tab
+                            key={index}
+                            className={({ selected }) =>
+                                `px-4 py-2 ${
+                                selected
+                                    ? "uppercase text-xl bg-accentColor border-t border-l border-r border-accentColor  "
+                                    : "uppercase text-xl bg-lightGrey border-t border-l border-r border-accentColor "
+                                }`
+                            }
+                            >
+                            {tab.name}
+                            </Tab>
+                        ))}
+                        </TabList>
+
+                        {/* Contenu des onglets */}
+                        <TabPanels className="h-full">
+                        {tabsDataTools.map((tab, index) => (
+                            <TabPanel key={index} className="p-4 bg-lightGrey ">
+                            <ul className="list-disc list-inside ">
+                                {tab.items.map((item: string, i: number) => (
+                                <li className='text-whiteColor' key={i}>{item}</li>
+                                ))}
+                            </ul>
+                            </TabPanel>
+                        ))}
+                        </TabPanels>
+                        </TabGroup>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+    
             {/* <p>Creation date: {new Date(recipe.createdAt).toLocaleDateString()}</p> */}
             <p> Date: {formatDate(recipe.createdAt)}</p>
            
         
             <p>Created by: {recipe.user?.username || 'Unknown'}</p>
             <p></p>
-
-
-            <button onClick={generatePDF}>Générer le PDF</button>
            
-            <h2>STEPS : </h2>
-            <div>
-                { recipe && recipe.steps.length > 0 ? (
-                    recipe.steps.map((step: Step, index: number) => (
-                        <div key={step.id || index}>
-                            <p>{step.number} {step.title}  {step.duration}min</p>
-                            <p>{step.description} </p>
-                        </div>
-                    ))
-                ) : (
-                    <div >No steps</div>
-                )}
-            </div>
+            
 
-            {/* <h3>INGREDIENTS</h3>
-            <div>
-                { recipe && recipe.ingredients.length > 0 ? (
-                    recipe.ingredients.map((ingredient: Ingredient, index: number) => (
-                        <div key={ingredient.id || index}>
-                            <p>{ingredient.ingredient.name} - {ingredient.quantity}{ingredient.unit}</p>
-                        </div>
-                    ))
-                ) : (
-                    <div >No ingredients</div>
-                )}
-            </div>
-            <h3>TOOLS</h3>
-            <div>
-                { recipe && recipe.tools.length > 0 ? (
-                    recipe.tools.map((tool: Tool, index: number) => (
-                        <div key={tool.id || index}>
-                            <p>{tool.tool.name} - </p>
-                        </div>
-                    ))
-                ) : (
-                    <div >No tools</div>
-                )}
-            </div> */}
+           
             <h3>REVIEWS</h3>
             <div>
                 { recipe && recipe.reviews.length > 0 ? (
@@ -329,40 +391,7 @@ const RecipePage = ({ params }: Props)  => {
             </div>
 
             <h3>TABS</h3>
-            <div>
-                <TabGroup>
-                {/* Onglets */}
-                <TabList className="flex space-x-4 border-b-2 border-gray-300 pb-2">
-                {tabsData.map((tab, index) => (
-                    <Tab
-                    key={index}
-                    className={({ selected }) =>
-                        `px-4 py-2 ${
-                        selected
-                            ? "border-b-2 border-blue-500 text-blue-500"
-                            : "text-gray-500"
-                        }`
-                    }
-                    >
-                    {tab.name}
-                    </Tab>
-                ))}
-                </TabList>
 
-                {/* Contenu des onglets */}
-                <TabPanels className="mt-4">
-                {tabsData.map((tab, index) => (
-                    <TabPanel key={index} className="p-4 bg-gray-50 rounded-md">
-                    <ul className="list-disc list-inside">
-                        {tab.items.map((item: string, i: number) => (
-                        <li className='text-red-800' key={i}>{item}</li>
-                        ))}
-                    </ul>
-                    </TabPanel>
-                ))}
-                </TabPanels>
-            </TabGroup>
-            </div>
         </div>
     );
 }
