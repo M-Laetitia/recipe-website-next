@@ -26,9 +26,14 @@ type Recipe = {
     tools: [];
     steps: [];
     reviews: [];
-    categories: [];
+    categories: RecipeCategory[];
     user: User;
 };
+
+type RecipeCategory = {
+    category: Category;
+}
+
 
 type Ingredient = {
     id: string;
@@ -56,10 +61,9 @@ type Tool = {
 
 type Category = {
     id: string;
-    category: {
         name: string;
         isPrimary : boolean;
-    };
+
     
 };
 type Step = {
@@ -85,6 +89,8 @@ const RecipePage = ({ params }: Props)  => {
     const [recipeId, setRecipeId] = useState<string | null>(null);
     const [stepCount, setStepCount] = useState(0); 
     const [reviewCount, setReviewCount] = useState(0);
+    const [allRecipes, setAllRecipes] = useState([]);
+    const [similarRecipes, setSimilarRecipes] = useState([]);
 
     useEffect(() => {
         const fetchRecipeId = async () => {
@@ -100,7 +106,7 @@ const RecipePage = ({ params }: Props)  => {
             const response = await fetch(`/api/recipe/${recipeId}`);
             const data = await response.json();
             setRecipe(data);
-            console.log('data recette', data)
+
 
             setStepCount(data.steps.length);
             setReviewCount(data.reviews.length);
@@ -112,6 +118,50 @@ const RecipePage = ({ params }: Props)  => {
         }
 
     }, [recipeId]);
+
+    useEffect(() => {
+        const fetchAllRecipes = async () => {
+            try {
+                const response = await fetch('/api/recipe');
+                // const data: Recipe[] = await response.json();
+                const data = await response.json();
+                setAllRecipes(data);
+    
+                if (recipe) {
+                    const primaryCategory = recipe.categories.find((categ: RecipeCategory) => categ.category.isPrimary)?.category.name;
+                    const secondaryCategories = recipe.categories
+                        .filter((categ: RecipeCategory) => !categ.category.isPrimary)
+                        .map((categ: RecipeCategory) => categ.category.name);
+    
+                    if (primaryCategory) {
+                        const similar = data.filter((otherRecipe: Recipe) => {
+                            // Vérifier que ce n'est pas la recette actuelle
+                            if (otherRecipe.id === recipeId) return false;
+
+                            // Vérifier la catégorie primaire
+                            const otherPrimaryCategory = otherRecipe.categories.find((categ: RecipeCategory) => categ.category.isPrimary)?.category.name;
+                            if (otherPrimaryCategory !== primaryCategory) return false;
+    
+                            // Vérifier une catégorie secondaire similaire
+                            const otherSecondaryCategories = otherRecipe.categories
+                                .filter((categ: RecipeCategory) => !categ.category.isPrimary)
+                                .map((categ: RecipeCategory) => categ.category.name);
+    
+                            return otherSecondaryCategories.some((categ) => secondaryCategories.includes(categ));
+                        });
+    
+                        setSimilarRecipes(similar.slice(0, 4)); // Limiter à 4 suggestions
+                        
+                    }
+                }
+            } catch (error) {
+                console.error('Error when fetching the recipes datas :', error);
+            }
+        };
+    
+        fetchAllRecipes();
+    }, [recipe]);
+    
 
     const generatePDF = () => {
         if (recipe) {
@@ -181,6 +231,7 @@ const RecipePage = ({ params }: Props)  => {
     : [];
 
 
+    
 
     // & RETURN ----------------------------------------------------------------
     return (
@@ -213,9 +264,9 @@ const RecipePage = ({ params }: Props)  => {
                     {/* //~ Tags ---------------------------------------------------- */}
                     <div className='flex gap-5'>
                         { recipe && recipe.categories.length > 0 ? (
-                            recipe.categories.map((category: Category, index: number) => (
+                            recipe.categories.map((category: RecipeCategory, index: number) => (
                                 <Tag 
-                                key={category.id || index}
+                                key={category.category.id || index}
                                 text={`#${category.category.name}`} 
                                 bgColor={category.category.isPrimary ? "var(--accentColor)" : "var(--darkGrey)"} 
                             />
@@ -408,8 +459,37 @@ const RecipePage = ({ params }: Props)  => {
                 <button>add a review</button>
             </div>
 
-            {/* //& REVIEWS ------------------------------------------------- */}
-            {/* //& REVIEWS ------------------------------------------------- */}
+            {/* //& SUGGESTIONS --------------------------------------------- */}
+
+            <div className='flex flex-col justify-center items-center mt-24 '>
+                <CursiveLabel text="Suggestions!" />
+                {similarRecipes && similarRecipes.length > 0 ? (
+                        <div className='w-full flex gap-10 mt-10'>
+                            {similarRecipes.map((similarRecipe: Recipe, index: number) => (
+                                <div key={similarRecipe.id || index} className='w-[20%] h-[300px]'>
+                                    <div className='w-full h-[200px]'>
+                                        {/* <Image
+                                            src={getCldImageUrl({
+                                                src: similarRecipe.image,
+                                                width: 300,
+                                                height: 200,
+                                                crop: 'fit',
+                                            })}
+                                            alt={similarRecipe.name}
+                                            fill
+                                            className="object-cover"
+                                        /> */}
+                                    </div>
+                                    <p className='text-xl'>{similarRecipe.name}</p>
+                                </div>
+                                ))}
+                            </div>
+                        ) : (
+                        <div>No similar recipes found</div>
+                    )}
+            </div>
+
+
     
             {/* <p>Creation date: {new Date(recipe.createdAt).toLocaleDateString()}</p> */}
             <p> Date: {formatDate(recipe.createdAt)}</p>
@@ -417,6 +497,8 @@ const RecipePage = ({ params }: Props)  => {
         
             <p>Created by: {recipe.user?.username || 'Unknown'}</p>
             <p></p>
+
+            
            
 
 
