@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
         port: '', 
         pathname: '/**', // permet d'accepter tous les chemins d'images de Cloudinary
       },
+      {
+        protocol: 'https',
+        hostname: 'img.clerk.com',
+        port: '',
+        pathname: '/**', 
+      },
     ],
   },
 };
