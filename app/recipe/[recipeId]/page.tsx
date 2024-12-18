@@ -7,6 +7,7 @@ import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
 import Image from 'next/image';
 import CursiveLabel from '@/components/CursiveLabel';
 import Tag from '@/components/Tag';
+import Button from '@/components/Button';
 import DifficultyRating from '@/components/DifficultyRating';
 import FavoriteIcon from '@/components/FavoriteIcon';
 import { Clock4, MessageSquareText  } from 'lucide-react';
@@ -335,7 +336,7 @@ const RecipePage = ({ params }: Props)  => {
                         <h2 className='uppercase text-xl text-light py-2 '>{`STEPS (${stepCount})`} </h2>
                     </div>
 
-                    <div className='w-full h-[85%] bg-lightGrey border-t border-accentColor'>
+                    <div className='w-full h-[85%] bg-lightGrey border-t border-accentColor relative'>
                     
                         <TabGroup>
                             {/* étapes */}
@@ -356,12 +357,12 @@ const RecipePage = ({ params }: Props)  => {
                             </TabPanels>
 
                             {/* dots de navigation */}
-                            <TabList className="flex justify-center mt-4 space-x-2 h-[20%]">
+                            <TabList className="flex justify-center items-center mt-4 space-x-2 h-[20%] absolute bottom-0 left-0 right-0">
                             {recipe.steps.map((_, index: number) => (
                                 <Tab
                                 key={index}
                                 className={({ selected }) =>
-                                    `w-3 h-3 rounded-full ${
+                                    `w-3 h-3 rounded-full focus:outline-none ${
                                     selected ? 'bg-accentColor' : 'bg-gray-500'
                                     }`
                                 }
@@ -383,7 +384,7 @@ const RecipePage = ({ params }: Props)  => {
                             <Tab
                             key={index}
                             className={({ selected }) =>
-                                `px-4 py-2 ${
+                                `px-4 py-2 focus:outline-none ${
                                 selected
                                     ? "uppercase text-xl bg-accentColor border-t border-l border-r border-accentColor  "
                                     : "uppercase text-xl bg-lightGrey border-t border-l border-r border-accentColor "
@@ -441,7 +442,7 @@ const RecipePage = ({ params }: Props)  => {
                                 </div>
                                 <div className='w-full'>
                                     <p className='text-accentColor text-xl mb-5'>{review.user.username}</p>
-                                    <p className='text-xl mb-3'>Titre du commentaire</p>
+                                    <p className='text-xl mb-3'>{review.title}</p>
                                     <p className='font-light text-lg mb-5'>{review.content}</p>
                                     <div className='w-full flex justify-end font-light text-lg text-gray-300'>
                                         <p>{formatDate(review.createdAt)}</p>
@@ -456,7 +457,27 @@ const RecipePage = ({ params }: Props)  => {
                     )}
                 </div>
 
-                <button>add a review</button>
+            </div>
+
+            {/* //& FORM ADD REVIEW ----------------------------------------- */}
+            <div>
+                <div className=' w-full  border-b border-accentColor mb-14'>
+                    <p className='text-2xl'> Leave a comment : </p>
+                </div>
+                <form className='bg-lightGrey py-10 px-7 w-full'>
+                    <div className='flex flex-col mb-6 w-[50%]'>
+                        <label htmlFor="title" className='text-xl'>Title <span className='text-accentColor'>*</span></label>
+                        <input type="text" name="title" id="title" className='text-black bg-gray-200 focus:outline-none p-2' />
+                    </div>
+                    <div className='flex flex-col mb-6'>
+                        <label htmlFor="content" className='text-xl'>Content <span className='text-accentColor'>*</span></label>
+                        <textarea name="content" id="content" cols={30} rows={60} className='text-black bg-gray-200 focus:outline-none p-2'></textarea>
+                    </div>
+                    <div>
+
+                    <Button text="SEND" className="text-center" />
+                    </div>
+                </form>
             </div>
 
             {/* //& SUGGESTIONS --------------------------------------------- */}
