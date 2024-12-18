@@ -73,6 +73,7 @@ type Step = {
 type User = {
     id: string,
     username: string,
+    imageUrl : string;
 }
 
 type Props = {
@@ -237,7 +238,7 @@ const RecipePage = ({ params }: Props)  => {
                                 <div ><DifficultyRating difficulty= {recipe.difficulty} /></div>
                             </div>
                             <div className='flex flex-col items-center justify-center'>
-                                <p className='text-accentColor uppercase text-xl mb-2'>Review</p>
+                                <p className='text-accentColor uppercase text-xl mb-2'>Comments</p>
                                 <div className='flex gap-2 text-xl'> <MessageSquareText /><p> {reviewCount}  </p></div>
                             </div>
                             
@@ -363,34 +364,52 @@ const RecipePage = ({ params }: Props)  => {
 
             {/* //& REVIEWS ------------------------------------------------- */}
 
-            <div className='flex flex-col justify-center  items-center mt-24 '>
-                <CursiveLabel text="Reviews" />
+            <div className='flex flex-col justify-center items-center mt-24 '>
+                <CursiveLabel text="Share your thoughts !" />
 
-                <div className='w-full h-64 mt-14'>
+                <div className=' w-full  border-b border-accentColor'>
+                    <p className='text-2xl'> {reviewCount} Comments</p>
+                </div>
+
+                <div className='w-full mt-14'>
                     { recipe && recipe.reviews.length > 0 ? (
                         recipe.reviews.map((review: Review, index: number) => (
-                            <div key={review.id || index} className='flex mb-14 gap-10'>
+                            <div key={review.id || index} className='flex mb-10 gap-10 bg-lightGrey p-5'>
                                 <div>
-                                    <div className='bg-pink-600 w-[100px] h-[100px]'></div>
+                                    <div className='w-[100px] h-[100px]'>
+                                      <Image
+                                            src= {review.user.imageUrl}
+                                            alt="User avatar"
+                                            layout="responsive"
+                                            width={100} 
+                                            height={100}
+                                            // cover
+                                            objectFit="contain"
+                                        />
+                                    </div>
                                 </div>
-                                <div>
-                                    <p>{review.user.username}</p>
-                                    <p>Titre du commentaire</p>
-                                    <p>{review.content}</p>
+                                <div className='w-full'>
+                                    <p className='text-accentColor text-xl mb-5'>{review.user.username}</p>
+                                    <p className='text-xl mb-3'>Titre du commentaire</p>
+                                    <p className='font-light text-lg mb-5'>{review.content}</p>
+                                    <div className='w-full flex justify-end font-light text-lg text-gray-300'>
+                                        <p>{formatDate(review.createdAt)}</p>
+                                    </div>
                                 
-                                    <p>{formatDate(review.createdAt)}</p>
                                 </div>
                                 
                             </div>
                         ))
                     ) : (
-                        <div >No reviews</div>
+                        <div >No comments</div>
                     )}
                 </div>
 
                 <button>add a review</button>
             </div>
 
+            {/* //& REVIEWS ------------------------------------------------- */}
+            {/* //& REVIEWS ------------------------------------------------- */}
     
             {/* <p>Creation date: {new Date(recipe.createdAt).toLocaleDateString()}</p> */}
             <p> Date: {formatDate(recipe.createdAt)}</p>
