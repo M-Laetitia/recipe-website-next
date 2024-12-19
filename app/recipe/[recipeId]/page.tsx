@@ -2,7 +2,6 @@
 import { formatDate } from '@/lib/utils'
 import { getCldImageUrl } from 'next-cloudinary';
 import React, { useEffect, useState } from 'react'
-import { jsPDF } from "jspdf"; 
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
 import Image from 'next/image';
 import CursiveLabel from '@/components/CursiveLabel';
@@ -11,7 +10,9 @@ import Button from '@/components/Button';
 import DifficultyRating from '@/components/DifficultyRating';
 import FavoriteIcon from '@/components/FavoriteIcon';
 import { Clock4, MessageSquareText  } from 'lucide-react';
-
+import RecipePdf from '@/components/RecipePdf';
+import { PDFDownloadLink} from '@react-pdf/renderer';
+// import { useRouter } from 'next/router';
 
 
 //& TYPE ------------------------------------------------------------------
@@ -85,6 +86,7 @@ type Props = {
     params: Promise<{ recipeId: string }>
 }
 
+
 const RecipePage = ({ params }: Props)  => {
     const [recipe, setRecipe] = useState<Recipe | null>(null); // Initialisation avec null
     const [recipeId, setRecipeId] = useState<string | null>(null);
@@ -92,6 +94,11 @@ const RecipePage = ({ params }: Props)  => {
     const [reviewCount, setReviewCount] = useState(0);
     const [allRecipes, setAllRecipes] = useState([]);
     const [similarRecipes, setSimilarRecipes] = useState([]);
+    
+    
+    // const router = useRouter();
+    // const { recipeId2 } = router.query; 
+    // console.log('recipeId2', recipeId2);
 
     useEffect(() => {
         const fetchRecipeId = async () => {
@@ -164,36 +171,7 @@ const RecipePage = ({ params }: Props)  => {
     }, [recipe]);
     
 
-    const generatePDF = () => {
-        if (recipe) {
-            const doc = new jsPDF();
-        
-            //ajouter le titre de la recette
-            doc.setFont("Helvetica", "bold");
-            doc.setFontSize(18);
-            doc.text(recipe.name, 20, 20);
-        
-            // aouter l'image de la recette
-            doc.setFont("Helvetica", "normal");
-            doc.setFontSize(12);
-            doc.text(`Description: ${recipe.instruction}`, 20, 30);
-        
-            // ajouter d'autres détails 
-            doc.text("Ingrédients:", 20, 40);
-            let yPosition = 50; // Position Y pour les lignes suivantes
-
-            recipe.ingredients.map((ingredient: Ingredient, index: number) => {
-            doc.text(`${index + 1}. ${ingredient.ingredient.name}`, 20, yPosition);
-            yPosition += 10; // Ajouter un espace entre les lignes
-            });
-        
-            // Sauvegarder le PDF
-            doc.save(`${recipe.name}.pdf`);
-        } else {
-            console.log("Recipe is null");
-        }
     
-    }
     // if(!recipe) {
     //     redirect('/')
     // }
@@ -301,10 +279,18 @@ const RecipePage = ({ params }: Props)  => {
                         </div>
                     </div>
 
-                    <div className='absolute bottom-6 gap-3 cursor-pointer hover:text-accentColor transition duration-300 ease-out' onClick={generatePDF}>
+
+                    <div className='absolute bottom-6 gap-3 cursor-pointer hover:text-accentColor transition duration-300 ease-out'>
                         <div className='flex items-center justify-center gap-2'>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
-                            <p className='translate-y-1 '>DOWNLOAD PDF</p>
+                            <p className='translate-y-1 '>
+                                <PDFDownloadLink
+                                    document={<RecipePdf recipeId={recipeId as string} />}
+                                    fileName={`${recipe.name}-recipe.pdf`}
+                                    >
+                                    DOWNLOAD PDF
+                                </PDFDownloadLink>
+                            </p>
                         </div>
                     </div>
 
@@ -471,7 +457,7 @@ const RecipePage = ({ params }: Props)  => {
                     </div>
                     <div className='flex flex-col mb-6'>
                         <label htmlFor="content" className='text-xl'>Content <span className='text-accentColor'>*</span></label>
-                        <textarea name="content" id="content" cols={30} rows={60} className='text-black bg-gray-200 focus:outline-none p-2'></textarea>
+                        <textarea name="content" id="content" cols={30} rows={5} className='text-black bg-gray-200 focus:outline-none p-2'></textarea>
                     </div>
                     <div>
 
@@ -518,6 +504,10 @@ const RecipePage = ({ params }: Props)  => {
         
             <p>Created by: {recipe.user?.username || 'Unknown'}</p>
             <p></p>
+
+      
+
+
 
             
            
