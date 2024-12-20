@@ -18,6 +18,7 @@ type Article = {
     createdAt: Date; 
     image: string;
     user: User;
+    comments : Comment[];
     tags:  {
         tag: {
             id: string;
@@ -43,7 +44,11 @@ type User = {
     id: string,
     username: string,
     imageUrl : string;
-}
+    publicMetadata: {
+        bio: string;
+        quote: string;
+    }
+};
 
 
 type Props = {
@@ -54,6 +59,7 @@ type Props = {
     const [article, setArticle] = useState<Article | null>(null); // Initialisation avec null
     // const { articleId } = params; 
     const [articleId, setArticleId] = useState<string | null>(null); // Ajouter un état pour articleId
+     const [commentCount, setCommentCount] = useState(0);
 
     useEffect(() => {
         // Résoudre la promesse de params et extraire articleId
@@ -72,12 +78,14 @@ type Props = {
             console.log(data); 
             setArticle(data);
             console.log('data article', data);
+
+            setCommentCount(data.comments.length);
         };
 
         if (articleId) {
         fetchRecipe();
         }
-        console.log(`/api/recipe/${articleId}`);
+
     }, [articleId]);
     // }, [params.recipeId]);
 
@@ -160,7 +168,8 @@ type Props = {
 
                         <div>
                             <div>{article.user.username}</div>
-                            <div>description bio</div>
+                            <p>Bio: {article.user.publicMetadata.bio}</p>
+                            <p>Quote: {article.user.publicMetadata.quote}</p>
                         </div>
                     </div>
                 </div>
@@ -172,7 +181,40 @@ type Props = {
                 <CursiveLabel text="Share your thoughts !" />
 
                 <div className=' w-full  border-b border-accentColor'>
-                    {/* <p className='text-2xl'> {reviewCount} Comments</p> */}
+                    <p className='text-2xl'> {commentCount} Comments</p>
+                </div>
+
+                <div className='w-full mt-14'>
+                    { article && article.comments.length > 0 ? (
+                        article.comments.map((comment: Comment, index: number) => (
+                            <div key={comment.id || index} className='flex mb-10 gap-10 bg-lightGrey p-5'>
+                                <div>
+                                    <div className='w-[100px] h-[100px]'>
+                                        <Image
+                                            src= {comment.user.imageUrl}
+                                            alt="User avatar"
+                                            layout="responsive"
+                                            width={100} 
+                                            height={100}
+                                            // cover
+                                            objectFit="contain"
+                                        />
+                                    </div>
+                                </div>
+                                <div className='w-full'>
+                                    <p className='text-accentColor text-xl mb-5'>{comment.user.username}</p>
+                                    <p className='font-light text-lg mb-5'>{comment.content}</p>
+                                    <div className='w-full flex justify-end font-light text-lg text-gray-300'>
+                                        <p>{formatDate(comment.createdAt)}</p>
+                                    </div>
+                                
+                                </div>
+                                
+                            </div>
+                        ))
+                    ) : (
+                        <div >No comments</div>
+                    )}
                 </div>
 
            
@@ -184,15 +226,6 @@ type Props = {
 
         </section>
 
-
-        <h1>ARTICLE</h1>
-
-        <div>
-                
-                <p>Author: </p>
-
-                
-        </div>
         </>
     )
 }
