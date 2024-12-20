@@ -1,7 +1,11 @@
 'use client'
+import { z } from "zod";
+import { useForm ,} from "react-hook-form";
+import React, { useEffect, useState } from 'react'
+
 import { formatDate } from '@/lib/utils'
 import { getCldImageUrl } from 'next-cloudinary';
-import React, { useEffect, useState } from 'react'
+
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
 import Image from 'next/image';
 import CursiveLabel from '@/components/CursiveLabel';
@@ -87,6 +91,15 @@ type Props = {
 }
 
 
+const reviewSchema = z.object({
+    // title: z.string().nonempty(),
+    title: z.string().min(5, { message: "Title must be at least 10 characters long" }).min(1,{ message: "Title is required" }),
+    content: z.string().min(1, {message: "Content is required"}),
+});
+
+type reviewSchema = z.infer<typeof reviewSchema>;
+
+
 const RecipePage = ({ params }: Props)  => {
     const [recipe, setRecipe] = useState<Recipe | null>(null); // Initialisation avec null
     const [recipeId, setRecipeId] = useState<string | null>(null);
@@ -94,12 +107,21 @@ const RecipePage = ({ params }: Props)  => {
     const [reviewCount, setReviewCount] = useState(0);
     const [allRecipes, setAllRecipes] = useState([]);
     const [similarRecipes, setSimilarRecipes] = useState([]);
-    
-    
-    // const router = useRouter();
-    // const { recipeId2 } = router.query; 
-    // console.log('recipeId2', recipeId2);
 
+    const {
+        register,
+        handleSubmit,
+        setError, 
+        clearErrors,
+        setValue,
+        formState: { errors }
+      } = useForm({
+        defaultValues: {
+          title: "",
+          content: "",
+        }
+    });
+    
     useEffect(() => {
         const fetchRecipeId = async () => {
           const resolvedParams = await params;
@@ -170,15 +192,10 @@ const RecipePage = ({ params }: Props)  => {
         fetchAllRecipes();
     }, [recipe]);
     
-
-    
     // if(!recipe) {
     //     redirect('/')
     // }
 
-    if (!recipe) {
-        return <p>Loading recipe...</p>;
-    }
 
 
     // datas pour les onglets 
@@ -210,7 +227,34 @@ const RecipePage = ({ params }: Props)  => {
     : [];
 
 
+        const onSubmit = async (formData: reviewSchema) => {
+            try {
+
+                const validateData = reviewSchema.parse(formData);
+                const response = await fetch(`/api/review`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ...validateData, recipeId }), // Include recipeId here
+                });
+
+                if (response.ok) {
+                    console.log('Review added');
+                } else {
+                    console.error('Error when adding the review');
+                }
+            } catch (error) {
+                console.error('Error when adding the review:', error);
+        }
+
+        
+    }
     
+    if (!recipe) {
+        return <p>Loading recipe...</p>;
+    }
+
 
     // & RETURN ----------------------------------------------------------------
     return (
@@ -466,6 +510,23 @@ const RecipePage = ({ params }: Props)  => {
                 </form>
             </div>
 
+            <div>
+                <form onSubmit={handleSubmit(onSubmit)}
+                onChange= {() => clearErrors("title")}>
+                    <div>
+                        <label htmlFor="title">Title</label>
+                        <input type="text" id="title" {...register("title")} />
+                        {errors.title && <p>{errors.title.message}</p>}
+                    </div>
+                    <div>
+                        <label htmlFor="content">Content</label>
+                        <textarea id="content" {...register("content")} />
+                        {errors.content && <p>{errors.content.message}</p>}
+                    </div>
+                    <button type="submit">Add review</button>
+                </form>
+            </div>
+
             {/* //& SUGGESTIONS --------------------------------------------- */}
 
             <div className='flex flex-col justify-center items-center mt-24 '>
@@ -497,7 +558,7 @@ const RecipePage = ({ params }: Props)  => {
             </div>
 
 
-    
+
             {/* <p>Creation date: {new Date(recipe.createdAt).toLocaleDateString()}</p> */}
             <p> Date: {formatDate(recipe.createdAt)}</p>
            
@@ -505,13 +566,7 @@ const RecipePage = ({ params }: Props)  => {
             <p>Created by: {recipe.user?.username || 'Unknown'}</p>
             <p></p>
 
-      
-
-
-
-            
-           
-
+    
 
         </div>
     );
