@@ -1,11 +1,13 @@
 "use client"
-
+import { z } from "zod";
+import { useForm ,} from "react-hook-form";
 import React, { useEffect, useState } from 'react';
 import { formatDate } from '@/lib/utils';
 import { getCldImageUrl } from 'next-cloudinary';
 import Image from 'next/image';
 import Tag from '@/components/Tag';
 import CursiveLabel from '@/components/CursiveLabel';
+import toast, { Toaster } from 'react-hot-toast';
 
 // type Params = {
 //     articleId: string;
@@ -50,16 +52,34 @@ type User = {
     }
 };
 
-
 type Props = {
     params: Promise<{ articleId: string }>
 }
+
+const commentSchema = z.object({
+    content: z.string().min(1, {message: "Content is required"}),
+});
+
+type commentSchema = z.infer<typeof commentSchema>;
   
-  const ArticlePage = ({ params }: Props) => {
+const ArticlePage = ({ params }: Props) => {
     const [article, setArticle] = useState<Article | null>(null); // Initialisation avec null
     // const { articleId } = params; 
     const [articleId, setArticleId] = useState<string | null>(null); // Ajouter un état pour articleId
-     const [commentCount, setCommentCount] = useState(0);
+    const [commentCount, setCommentCount] = useState(0);
+
+    const {
+        register,
+        handleSubmit,
+        setError, 
+        clearErrors,
+        setValue,
+        formState: { errors }
+        } = useForm({
+        defaultValues: {
+            content: "",
+        }
+    });
 
     useEffect(() => {
         // Résoudre la promesse de params et extraire articleId
@@ -88,6 +108,39 @@ type Props = {
 
     }, [articleId]);
     // }, [params.recipeId]);
+
+    const onSubmit = async (formData: commentSchema) => {
+        try {
+
+            const toastId = toast.loading('Your comment is being added...');
+
+            const validateData = commentSchema.parse(formData);
+            const response = await fetch(`/api/comment`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ...validateData, articleId }), 
+            });
+
+            if (response.ok) {
+                toast.success('Your comment has been added !', {
+                    id: toastId,
+                    duration: 3000, 
+                });
+                
+                setTimeout(() => {
+                    location.reload();
+                }, 4000);
+
+            } else {
+                console.error('Error when adding the comment');
+            }
+        } catch (error) {
+            console.error('Error when adding the comment:', error);
+        }
+
+    }
 
 
     if (!article) {
@@ -153,74 +206,106 @@ type Props = {
 
                 </div>
 
-                <div className=' w-full mt-5 border-t pt-4 border-accentColor'>
-                    <div>
-                         <div className='w-[100px] h-[100px] rounded-full overflow-hidden'>
-                            <Image
-                                src= {article.user.imageUrl}
-                                alt="User avatar"
-                                layout="responsive"
-                                width={100} 
-                                height={100}
-                                objectFit="contain"
-                            />
-                        </div>
-
-                        <div>
-                            <div>{article.user.username}</div>
-                            <p>Bio: {article.user.publicMetadata.bio}</p>
-                            <p>Quote: {article.user.publicMetadata.quote}</p>
-                        </div>
+                <div className=' w-full mt-5 border-t pt-8 border-accentColor flex gap-11 items-center'>
+                   
+                    <div className='w-[150px] h-[150px] rounded-full overflow-hidden'>
+                        <Image
+                            src= {article.user.imageUrl}
+                            alt="User avatar"
+                            layout="responsive"
+                            width={150} 
+                            height={150}
+                            objectFit="contain"
+                        />
                     </div>
+
+                    <div>
+                        <div className='text-2xl uppercase font-light '>{article.user.username}</div>
+                        <p className='text-xl font-light'>{article.user.publicMetadata.bio}</p>
+                        <div className='flex mt-3 gap-4'>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accentColor)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-quote -scale-x-100"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/></svg>
+                            <p className='italic'>{article.user.publicMetadata.quote}</p>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accentColor)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-quote"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/><path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"/></svg>
+                        </div>
+                        
+                    </div>
+                 
                 </div>
                     
             </article>
 
-            <div>
+            {/* //& COMMENTS ------------------------------------------------ */}
             <div className='w-[65%] m-auto flex flex-col justify-center items-center mt-7 '>
-                <CursiveLabel text="Share your thoughts !" />
+               
+                    <CursiveLabel text="Share your thoughts !" />
+                    <div className=' w-full  border-b border-accentColor'>
+                        <p className='text-2xl'> {commentCount} Comments</p>
+                    </div>
 
-                <div className=' w-full  border-b border-accentColor'>
-                    <p className='text-2xl'> {commentCount} Comments</p>
-                </div>
-
-                <div className='w-full mt-14'>
-                    { article && article.comments.length > 0 ? (
-                        article.comments.map((comment: Comment, index: number) => (
-                            <div key={comment.id || index} className='flex mb-10 gap-10 bg-lightGrey p-5'>
-                                <div>
-                                    <div className='w-[100px] h-[100px]'>
-                                        <Image
-                                            src= {comment.user.imageUrl}
-                                            alt="User avatar"
-                                            layout="responsive"
-                                            width={100} 
-                                            height={100}
-                                            // cover
-                                            objectFit="contain"
-                                        />
+                    <div className='w-full mt-14'>
+                        { article && article.comments.length > 0 ? (
+                            article.comments.map((comment: Comment, index: number) => (
+                                <div key={comment.id || index} className='flex mb-10 gap-10 bg-lightGrey p-5'>
+                                    <div>
+                                        <div className='w-[100px] h-[100px]'>
+                                            <Image
+                                                src= {comment.user.imageUrl}
+                                                alt="User avatar"
+                                                layout="responsive"
+                                                width={100} 
+                                                height={100}
+                                                // cover
+                                                objectFit="contain"
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                                <div className='w-full'>
-                                    <p className='text-accentColor text-xl mb-5'>{comment.user.username}</p>
-                                    <p className='font-light text-lg mb-5'>{comment.content}</p>
-                                    <div className='w-full flex justify-end font-light text-lg text-gray-300'>
-                                        <p>{formatDate(comment.createdAt)}</p>
+                                    <div className='w-full'>
+                                        <p className='text-accentColor text-xl mb-5'>{comment.user.username}</p>
+                                        <p className='font-light text-lg mb-5'>{comment.content}</p>
+                                        <div className='w-full flex justify-end font-light text-lg text-gray-300'>
+                                            <p>{formatDate(comment.createdAt)}</p>
+                                        </div>
+                                    
                                     </div>
-                                
+                                    
                                 </div>
-                                
-                            </div>
-                        ))
-                    ) : (
-                        <div >No comments</div>
-                    )}
+                            ))
+                        ) : (
+                            <div >No comments</div>
+                        )}
+                    </div>
+
+                
+
+                 {/* //& FORM ADD REVIEW ----------------------------------------- */}
+            
+                <div className=' w-full  border-b border-accentColor mb-14'>
+                    <p className='text-2xl'> Leave a comment : </p>
                 </div>
+                <form 
+                    onSubmit={handleSubmit(onSubmit)}
+                    // onChange= {() => clearErrors("title")}
+                    className='bg-lightGrey py-10 px-7 w-full'
+                >
+                    <div className='flex flex-col mb-6'>
+                        <label htmlFor="content" className='text-xl'>Content <span className='text-accentColor'>*</span></label>
+                        <textarea id="content" cols={30} rows={5} {...register("content")} 
+                        className='text-black bg-gray-200 focus:outline-none p-2'></textarea>
+                        {errors.content && <p>{errors.content.message}</p>}
+                    </div>
+                    <div>
+                    <button
+                        className='bg-accentColor inline-block px-6 py-3.5 font-medium uppercase text-base tracking-widest cursor-pointer hover:bg-[#E59B62] transition ease-in-out delay-150'
+                        type="submit">
+                        Add comment
+                        </button>
+                    {/* <Button text="ADD REVIEW" className="text-center" /> */}
 
-           
-
+                    </div>
+                </form>
             </div>
 
+            <div>
 
             </div>
 
