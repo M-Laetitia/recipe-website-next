@@ -16,7 +16,7 @@ import toast, { Toaster } from 'react-hot-toast';
 
 //^ Components 
 import Tag from '@/components/Tag';
-import Button from '@/components/Button';
+import RecipeCard2 from '@/components/RecipeCard2';
 import DifficultyRating from '@/components/DifficultyRating';
 import FavoriteIcon from '@/components/FavoriteIcon';
 import CursiveLabel from '@/components/CursiveLabel';
@@ -184,7 +184,7 @@ const RecipePage = ({ params }: Props)  => {
                             return otherSecondaryCategories.some((categ) => secondaryCategories.includes(categ));
                         });
     
-                        setSimilarRecipes(similar.slice(0, 4)); // Limiter à 4 suggestions
+                        setSimilarRecipes(similar.slice(0, 3)); // Limiter à 4 suggestions
                         
                     }
                 }
@@ -256,10 +256,12 @@ const RecipePage = ({ params }: Props)  => {
                 // Si succès : toast de succès et refresh
                 toast.success('Your comment has been added !', {
                     id: toastId,
-                    duration: 5000, // 3 secondes
+                    duration: 3000, 
                 });
                 
-                location.reload();
+                setTimeout(() => {
+                    location.reload();
+                }, 4000);
 
                 // Utiliser router.refresh() avec un petit délai
                 // setTimeout(() => {
@@ -517,24 +519,37 @@ const RecipePage = ({ params }: Props)  => {
                 <div className=' w-full  border-b border-accentColor mb-14'>
                     <p className='text-2xl'> Leave a comment : </p>
                 </div>
-                <form className='bg-lightGrey py-10 px-7 w-full'>
+                <form 
+                    onSubmit={handleSubmit(onSubmit)}
+                    onChange= {() => clearErrors("title")}
+                    className='bg-lightGrey py-10 px-7 w-full'
+                >
                     <div className='flex flex-col mb-6 w-[50%]'>
                         <label htmlFor="title" className='text-xl'>Title <span className='text-accentColor'>*</span></label>
-                        <input type="text" name="title" id="title" className='text-black bg-gray-200 focus:outline-none p-2' />
+                        <input type="text" id="title" {...register("title")}
+                            className='text-black bg-gray-200 focus:outline-none p-2' />
+                        {errors.title && <p>{errors.title.message}</p>}
                     </div>
                     <div className='flex flex-col mb-6'>
                         <label htmlFor="content" className='text-xl'>Content <span className='text-accentColor'>*</span></label>
-                        <textarea name="content" id="content" cols={30} rows={5} className='text-black bg-gray-200 focus:outline-none p-2'></textarea>
+                        <textarea id="content" cols={30} rows={5} {...register("content")} 
+                        className='text-black bg-gray-200 focus:outline-none p-2'></textarea>
+                        {errors.content && <p>{errors.content.message}</p>}
                     </div>
                     <div>
+                    <button
+                        className='bg-accentColor inline-block px-6 py-3.5 font-medium uppercase text-base tracking-widest cursor-pointer hover:bg-[#E59B62] transition ease-in-out delay-150'
+                        type="submit">
+                        Add review
+                        </button>
+                    {/* <Button text="ADD REVIEW" className="text-center" /> */}
 
-                    <Button text="SEND" className="text-center" />
                     </div>
                 </form>
             </div>
 
             <div>
-                <form onSubmit={handleSubmit(onSubmit)}
+                {/* <form onSubmit={handleSubmit(onSubmit)}
                 onChange= {() => clearErrors("title")}>
                     <div>
                         <label htmlFor="title">Title</label>
@@ -547,7 +562,7 @@ const RecipePage = ({ params }: Props)  => {
                         {errors.content && <p>{errors.content.message}</p>}
                     </div>
                     <button type="submit">Add review</button>
-                </form>
+                </form> */}
             </div>
 
             {/* //& SUGGESTIONS --------------------------------------------- */}
@@ -558,20 +573,7 @@ const RecipePage = ({ params }: Props)  => {
                         <div className='w-full flex gap-10 mt-10'>
                             {similarRecipes.map((similarRecipe: Recipe, index: number) => (
                                 <div key={similarRecipe.id || index} className='w-[20%] h-[300px]'>
-                                    <div className='w-full h-[200px]'>
-                                        {/* <Image
-                                            src={getCldImageUrl({
-                                                src: similarRecipe.image,
-                                                width: 300,
-                                                height: 200,
-                                                crop: 'fit',
-                                            })}
-                                            alt={similarRecipe.name}
-                                            fill
-                                            className="object-cover"
-                                        /> */}
-                                    </div>
-                                    <p className='text-xl'>{similarRecipe.name}</p>
+                                    <RecipeCard2 key={index} recipe={similarRecipe} />
                                 </div>
                                 ))}
                             </div>
@@ -580,7 +582,11 @@ const RecipePage = ({ params }: Props)  => {
                     )}
             </div>
 
+            {/* {recipes.map((recipe: Recipe, index: number) =>(
+                    <RecipeCard2 key={index} recipe={recipe}/>
+                ))}
 
+            <RecipeCard2 recipe={recipe} /> */}
 
             {/* <p>Creation date: {new Date(recipe.createdAt).toLocaleDateString()}</p> */}
             <p> Date: {formatDate(recipe.createdAt)}</p>
