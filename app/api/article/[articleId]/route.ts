@@ -1,5 +1,6 @@
 import { db} from "@/lib/db"
 import { NextRequest, NextResponse } from "next/server";
+import { clerkClient } from "@clerk/express"; 
 
 // 1 
 // export async function GET(req: Request, { params }: { params: {articleId: string } }) {
@@ -22,11 +23,6 @@ export async function GET(request: NextRequest, { params }: Props) {
           id: articleId, 
         },
         include: {
-            user: {  
-                select: {
-                  username: true,  
-                },
-            },
             tags: {
               include: {
                 tag: { 
@@ -37,26 +33,43 @@ export async function GET(request: NextRequest, { params }: Props) {
               },
             },
             comments: {
-                orderBy: {
-                  createdAt: 'desc', 
-                },
-                include: {
-                    user: {  
-                        select: {
-                          username: true,  
-                        },
-                    }
-                }
+              orderBy: {
+                createdAt: 'desc', 
+              },
             },
     
         },
        
       });
-  
 
-      console.log("article detail", article)
+      if (!article) {
+        return new NextResponse("Article not found", { status: 404 });
+      }
+
+      const articleWithUser = await (async () => {
+        try {
+          const user = await clerkClient.users.getUser(article.userId);
+          return {
+            user: {
+              id: user.id,
+              username: user.username || null,
+              imageUrl: user.imageUrl || null,
+            },
+          };
+        } catch (error) {
+          console.error(`Error when fetching the user of the article ${article.id}:`, error);
+          return { user: null };
+        }
+      })();
+
+      const articleComplete= {
+        ...article,  
+        user: articleWithUser.user, 
+      };
+
+      console.log("article detail", articleComplete)
   
-        return NextResponse.json(article);
+        return NextResponse.json(articleComplete);
       } catch (error) {
         console.error("[RECIPES] Error:", error);
         return new NextResponse("Internal Error", { status: 500 });
