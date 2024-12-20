@@ -2,21 +2,27 @@
 import { z } from "zod";
 import { useForm ,} from "react-hook-form";
 import React, { useEffect, useState } from 'react'
-
 import { formatDate } from '@/lib/utils'
-import { getCldImageUrl } from 'next-cloudinary';
 
-import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
+import { getCldImageUrl } from 'next-cloudinary';
 import Image from 'next/image';
-import CursiveLabel from '@/components/CursiveLabel';
+import { useRouter } from 'next/navigation';
+
+//^ UI/UX / features
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
+import RecipePdf from '@/components/RecipePdf';
+import { PDFDownloadLink} from '@react-pdf/renderer';
+import toast, { Toaster } from 'react-hot-toast';
+
+//^ Components 
 import Tag from '@/components/Tag';
 import Button from '@/components/Button';
 import DifficultyRating from '@/components/DifficultyRating';
 import FavoriteIcon from '@/components/FavoriteIcon';
+import CursiveLabel from '@/components/CursiveLabel';
+
+//^ Icons
 import { Clock4, MessageSquareText  } from 'lucide-react';
-import RecipePdf from '@/components/RecipePdf';
-import { PDFDownloadLink} from '@react-pdf/renderer';
-// import { useRouter } from 'next/router';
 
 
 //& TYPE ------------------------------------------------------------------
@@ -39,7 +45,6 @@ type Recipe = {
 type RecipeCategory = {
     category: Category;
 }
-
 
 type Ingredient = {
     id: string;
@@ -90,7 +95,6 @@ type Props = {
     params: Promise<{ recipeId: string }>
 }
 
-
 const reviewSchema = z.object({
     // title: z.string().nonempty(),
     title: z.string().min(5, { message: "Title must be at least 10 characters long" }).min(1,{ message: "Title is required" }),
@@ -99,8 +103,8 @@ const reviewSchema = z.object({
 
 type reviewSchema = z.infer<typeof reviewSchema>;
 
-
 const RecipePage = ({ params }: Props)  => {
+    const router = useRouter();
     const [recipe, setRecipe] = useState<Recipe | null>(null); // Initialisation avec null
     const [recipeId, setRecipeId] = useState<string | null>(null);
     const [stepCount, setStepCount] = useState(0); 
@@ -196,8 +200,6 @@ const RecipePage = ({ params }: Props)  => {
     //     redirect('/')
     // }
 
-
-
     // datas pour les onglets 
     // S'assurer que `recipe` n'est pas null avant d'accéder à ses propriétés
     const tabsDataTools = recipe
@@ -226,29 +228,50 @@ const RecipePage = ({ params }: Props)  => {
             ]
     : [];
 
+    const onSubmit = async (formData: reviewSchema) => {
+        try {
 
-        const onSubmit = async (formData: reviewSchema) => {
-            try {
+            // setRecipe(prev => ({
+            //     ...prev!,
+            //     reviews: [newReview, ...(prev?.reviews || [])]
+            // }));
+            // setReviewCount(prev => prev + 1);
 
-                const validateData = reviewSchema.parse(formData);
-                const response = await fetch(`/api/review`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ ...validateData, recipeId }), // Include recipeId here
+            // // Reset du formulaire
+            // reset();
+
+            // Reset du formulaire
+            const toastId = toast.loading('Your comment is being added...');
+
+            const validateData = reviewSchema.parse(formData);
+            const response = await fetch(`/api/review`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ...validateData, recipeId }), // Include recipeId here
+            });
+
+            if (response.ok) {
+                // Si succès : toast de succès et refresh
+                toast.success('Your comment has been added !', {
+                    id: toastId,
+                    duration: 5000, // 3 secondes
                 });
+                
+                location.reload();
 
-                if (response.ok) {
-                    console.log('Review added');
-                } else {
-                    console.error('Error when adding the review');
-                }
-            } catch (error) {
-                console.error('Error when adding the review:', error);
+                // Utiliser router.refresh() avec un petit délai
+                // setTimeout(() => {
+                //     router.refresh();
+                // }, 1000);
+            } else {
+                console.error('Error when adding the review');
+            }
+        } catch (error) {
+            console.error('Error when adding the review:', error);
         }
 
-        
     }
     
     if (!recipe) {
