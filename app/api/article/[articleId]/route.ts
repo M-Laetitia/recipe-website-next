@@ -54,6 +54,7 @@ export async function GET(request: NextRequest, { params }: Props) {
               id: user.id,
               username: user.username || null,
               imageUrl: user.imageUrl || null,
+              publicMetadata : user.publicMetadata || null,
             },
           };
         } catch (error) {
@@ -62,9 +63,33 @@ export async function GET(request: NextRequest, { params }: Props) {
         }
       })();
 
+      const commentsWithUsers = await Promise.all(
+        article.comments.map(async (comment) => {
+          try {
+            const user = await clerkClient.users.getUser(comment.userId);
+            return {
+              ...comment,
+              user: {
+                id: user.id,
+                username: user.username || null,
+                imageUrl : user.imageUrl || null,
+              },
+              // user: { ...user }, // Inclut toutes les données de l'utilisateur
+            };
+          } catch (error) {
+            console.error(`Erreur lors de la récupération de l'user pour la review ${comment.id}:`, error);
+            return {
+              ...comment,
+              user: null,
+            };
+          }
+        })
+      );
+
       const articleComplete= {
         ...article,  
         user: articleWithUser.user, 
+        comments : commentsWithUsers,
       };
 
       console.log("article detail", articleComplete)
