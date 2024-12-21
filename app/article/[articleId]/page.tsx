@@ -237,47 +237,46 @@ const ArticlePage = ({ params }: Props) => {
             {/* //& COMMENTS ------------------------------------------------ */}
             <div className='w-[65%] m-auto flex flex-col justify-center items-center mt-7 '>
                
-                    <CursiveLabel text="Share your thoughts !" />
-                    <div className=' w-full  border-b border-accentColor'>
-                        <p className='text-2xl'> {commentCount} Comments</p>
-                    </div>
+                <CursiveLabel text="Share your thoughts !" />
+                <div className=' w-full  border-b border-accentColor'>
+                    <p className='text-2xl'> {commentCount} Comments</p>
+                </div>
 
-                    <div className='w-full mt-14'>
-                        { article && article.comments.length > 0 ? (
-                            article.comments.map((comment: Comment, index: number) => (
-                                <div key={comment.id || index} className='flex mb-10 gap-10 bg-lightGrey p-5'>
-                                    <div>
-                                        <div className='w-[100px] h-[100px]'>
-                                            <Image
-                                                src= {comment.user.imageUrl}
-                                                alt="User avatar"
-                                                layout="responsive"
-                                                width={100} 
-                                                height={100}
-                                                // cover
-                                                objectFit="contain"
-                                            />
-                                        </div>
+                <div className='w-full mt-14'>
+                    { article && article.comments.length > 0 ? (
+                        article.comments.map((comment: Comment, index: number) => (
+                            <div key={comment.id || index} className='flex mb-10 gap-10 bg-lightGrey p-5'>
+                                <div>
+                                    <div className='w-[100px] h-[100px]'>
+                                        <Image
+                                            src= {comment.user.imageUrl}
+                                            alt="User avatar"
+                                            layout="responsive"
+                                            width={100} 
+                                            height={100}
+                                            // cover
+                                            objectFit="contain"
+                                        />
                                     </div>
-                                    <div className='w-full'>
-                                        <p className='text-accentColor text-xl mb-5'>{comment.user.username}</p>
-                                        <p className='font-light text-lg mb-5'>{comment.content}</p>
-                                        <div className='w-full flex justify-end font-light text-lg text-gray-300'>
-                                            <p>{formatDate(comment.createdAt)}</p>
-                                        </div>
-                                    
-                                    </div>
-                                    
                                 </div>
-                            ))
-                        ) : (
-                            <div >No comments</div>
-                        )}
-                    </div>
+                                <div className='w-full'>
+                                    <p className='text-accentColor text-xl mb-5'>{comment.user.username}</p>
+                                    <p className='font-light text-lg mb-5'>{comment.content}</p>
+                                    <div className='w-full flex justify-end font-light text-lg text-gray-300'>
+                                        <p>{formatDate(comment.createdAt)}</p>
+                                    </div>
+                                
+                                </div>
+                                
+                            </div>
+                        ))
+                    ) : (
+                        <div >No comments</div>
+                    )}
+                </div>
 
-                
 
-                 {/* //& FORM ADD REVIEW ----------------------------------------- */}
+                {/* //& FORM ADD REVIEW ----------------------------------------- */}
             
                 <div className=' w-full  border-b border-accentColor mb-14'>
                     <p className='text-2xl'> Leave a comment : </p>
@@ -288,7 +287,7 @@ const ArticlePage = ({ params }: Props) => {
                     className='bg-lightGrey py-10 px-7 w-full'
                 >
                     <div className='flex flex-col mb-6'>
-                        <label htmlFor="content" className='text-xl'>Content <span className='text-accentColor'>*</span></label>
+                        <label htmlFor="content" className='text-xl'>Message <span className='text-accentColor'>*</span></label>
                         <textarea id="content" cols={30} rows={5} {...register("content")} 
                         className='text-black bg-gray-200 focus:outline-none p-2'></textarea>
                         {errors.content && <p>{errors.content.message}</p>}
@@ -298,15 +297,16 @@ const ArticlePage = ({ params }: Props) => {
                         className='bg-accentColor inline-block px-6 py-3.5 font-medium uppercase text-base tracking-widest cursor-pointer hover:bg-[#E59B62] transition ease-in-out delay-150'
                         type="submit">
                         Add comment
-                        </button>
+                    </button>
                     {/* <Button text="ADD REVIEW" className="text-center" /> */}
 
                     </div>
                 </form>
             </div>
 
-            <div>
-
+            {/* //& RELATED ARTICLES ---------------------------------------- */}
+            <div className='w-[65%] m-auto flex flex-col justify-center items-center mt-24 '>
+                <CursiveLabel text="You might also like " />
             </div>
 
         </section>
