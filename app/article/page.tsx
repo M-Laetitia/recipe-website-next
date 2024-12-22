@@ -2,14 +2,17 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import ArticleCard from '@/components/ArticleCard'
+
 import { formatDate } from '@/lib/utils';
 
 type Article = {
     id: string;
     title: string;
+    image: string;
     content: string;
     createdAt: Date; 
-    user: {
+    user: { 
         id: string;
         username: string;
     }
@@ -46,6 +49,12 @@ const ArticlesPage = () => {
         <>
         <h1>BLOG - ARTICLES</h1>
 
+        <div className='grid grid-cols-4 gap-12'>
+        {articles.map((article: Article, index: number) =>(
+                    <ArticleCard key={index} article={article}/>
+                ))}
+        </div>
+
         <div>
 
             {articles.map((article: Article,  index: number) =>(
@@ -66,7 +75,7 @@ const ArticlesPage = () => {
                                 </p>
                             ))
                             ) : (
-                                <p >No steps available</p>
+                                <p >No tags available</p>
                             )}
 
                         
