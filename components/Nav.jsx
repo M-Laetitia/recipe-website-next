@@ -20,14 +20,19 @@ const Nav = () => {
     return (
     <nav className='bg-blackColor w-full h-24 px-16 grid grid-cols-[auto_1fr_auto_auto] items-center justify-between josefin'>
 
-        <div className= 'w-[105px] h-[70px] flex items-center justify-center'>
-          <Image
-            src="/img/logo.svg"
-            alt="Just cook logo"
-            width={105} 
-            height={70}
-          />
-        </div>
+        <Link
+            href="/"
+            >
+            <div className= 'w-[105px] h-[70px] flex items-center justify-center'>
+            
+              <Image
+                src="/img/logo.svg"
+                alt="Just cook logo"
+                width={105} 
+                height={70}
+              />
+            </div>
+        </Link>
        
 
         {/* user panel */}
