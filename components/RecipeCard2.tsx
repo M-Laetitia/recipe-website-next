@@ -12,10 +12,11 @@ type Category = {
   
   type Recipe = {
     id: string;
-    title: string;
+    // title: string;
     name: string;
     duration: number;
     image: string;
+    difficulty: number;
     categories: {
       category: Category;
     }[];
@@ -69,23 +70,17 @@ const RecipeCard2:React.FC<{ recipe: Recipe }> = ({ recipe }) => {
             </div>
 
             <div>
-                <p><Clock4 />{recipe.duration}</p>
-                <p><ChefHat /><ChefHat /><ChefHat /><ChefHat /><ChefHat /></p>
+                <p><Clock4 />{recipe.duration} </p>
+                <p><ChefHat />{recipe.difficulty}</p>
             </div>
         </div>
 
-
-        
 
         {/* { recipe.createdAt && (
             <p>{recipe.createdAt.toLocaleDateString()} - {recipe.createdAt.toLocaleTimeString()}</p>
         )} */}
 
-  
         {/* <p className='text-sm text-slate-300'>{formatDate(recipe.createdAt)}</p> */}
-        
-       
-
 
     </div>
   )
