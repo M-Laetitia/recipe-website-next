@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import "../styles/globals.css";
 import { josefin } from "@/src/app/utils/fonts";
 import { cursive } from "@/src/app/utils/fonts";
+import { Toaster } from 'react-hot-toast';
 
 import {
   ClerkProvider
@@ -23,17 +24,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
-
-
-
   return (
     <ClerkProvider>
       <html lang="en">
         {/* <body className={`${josefin_init.variable} ${birthstone_init.variable}`}> */}
         <body className={`${josefin} ${cursive}`}>
           <Nav />
-          <main className="bg-slate-800 min-h-screen text-white">
+          <main className="bg-darkGrey min-h-screen text-white font-josefin">
             {children}
+            <Toaster position="top-right" />
           </main>
           <Footer />
         </body>
