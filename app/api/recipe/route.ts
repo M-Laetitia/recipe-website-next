@@ -13,7 +13,7 @@ export async function GET(req: Request) {
     //fetch('/api/recipes?category=dessert')
     // fetch('/api/recipes?limit=5&category=dessert')
 
-    console.log("Paramètres reçus:", { limit, category });
+    // console.log("Paramètres reçus:", { limit, category });
 
     try {
         const recipes = await db.recipe.findMany({
@@ -42,7 +42,7 @@ export async function GET(req: Request) {
                             category: {
                                 name: {
                                 equals: category,
-                                mode: 'insensitive'  // Ignorer la casse
+                                mode: 'insensitive'  // ignorer la casse
                                 }
                             },
                         },
@@ -52,7 +52,7 @@ export async function GET(req: Request) {
 
         })
 
-        console.log("recipes / categ / limite",recipes )
+        // console.log("recipes / categ / limite",recipes )
         return NextResponse.json(recipes)
 
     } catch (error) {
