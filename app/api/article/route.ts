@@ -53,7 +53,7 @@ export async function GET() {
 export async function POST(req: Request) {
     try{
         const body = await req.json();
-        const { title, content} = body;
+        const { title, content, image} = body;
 
 
         // Validation des champs
@@ -63,6 +63,10 @@ export async function POST(req: Request) {
 
         if (!content || typeof content !== "string") {
             return NextResponse.json({ message: "Invalid content article" }, { status: 400 });
+        }
+
+        if (!image || typeof image !== "string") {
+            return NextResponse.json({ message: "Invalid image article" }, { status: 400 });
         }
 
         // ajouter le slug 
@@ -77,7 +81,8 @@ export async function POST(req: Request) {
                 title, 
                 content, 
                 slug, 
-                userId 
+                userId,
+                image 
             },
         });
 
