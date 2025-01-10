@@ -7,14 +7,14 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 
 
 const Nav = () => {
   const currentPath = usePathname();
-  const router = useRouter();
   const [searchKeyword, setSearchKeyword] = useState('');
+  const router = useRouter();
 
     const links = [
         { title: 'Profile', url: '/profile' },
@@ -22,6 +22,24 @@ const Nav = () => {
         { title: 'Admin Dashboard', url: '/admin', role: 'admin' },
         // Add more placeholder links as needed
     ];
+
+    useEffect(() => {
+      // Vider l'input à chaque changement de route
+      setSearchKeyword('');
+    }, [currentPath]); // Utiliser pathname comme dépendance
+  
+    // Effet pour gérer le refresh de la page
+    useEffect(() => {
+      const clearInput = () => {
+        setSearchKeyword('');
+      };
+  
+      window.addEventListener('beforeunload', clearInput);
+  
+      return () => {
+        window.removeEventListener('beforeunload', clearInput);
+      };
+    }, []);
 
 
     const handleSearch = (event) => {
@@ -125,6 +143,7 @@ const Nav = () => {
             <input
               type="text"
               value={searchKeyword} // Lier la valeur du champ à l'état
+              
               onChange={(e) => setSearchKeyword(e.target.value)} // Mettre à jour l'état à chaque changement
               placeholder="Search recipes or articles"
               className="border border-gray-300 p-2"
