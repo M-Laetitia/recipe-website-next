@@ -24,6 +24,7 @@ type Recipe = {
     name: string;
     duration: number;
     image: string;
+    difficulty : number;
     categories: {
         category: Category;
     }[];
@@ -35,7 +36,20 @@ const RecipePage = () => {
     // VERSION 02 : HOOKS
     const [recipes, setRecipes] = useState([])
     const [categories, setCategories] = useState([])
-    const [filteredCategory, setFilteredCategory] = useState(null);
+    const [secondCategories, setSecondCategories] = useState([])
+    // const [filteredCategory, setFilteredCategory] = useState(null);
+
+    const [selectedMainCategory, setSelectedMainCategory] = useState<string | null>(null);
+    const [selectedSecondCategory, setSelectedSecondCategory] = useState<string | null>(null);
+    const [filteredRecipes, setFilteredRecipes] = useState([]);
+
+    const handleMainCategoryFilterChange = (selectedId: string | null) => {
+        setSelectedMainCategory(selectedId);
+      };
+      
+      const handleSecondCategoryFilterChange = (selectedId: string | null) => {
+        setSelectedSecondCategory(selectedId);
+      };
 
 
     useEffect (() => {
@@ -66,25 +80,53 @@ const RecipePage = () => {
         fetchCategories();
     }, [])
 
-    const handleFilterChange = (selectedCateg: string | null) => {
-
-        if (!selectedCateg) {
-            setFilteredCategory(null); // Réinitialiser si aucun filtre n'est sélectionné
-            return;
-          }
-    
-        const fetchFilteredCategory = async() => {
-            const response = await fetch(`/api/recipe?category=${selectedCateg}`);
+    useEffect (() => {
+        const fetchSecondCategories = async() => {
+            const response = await fetch('/api/category?main=false')
             const data = await response.json()
-            setFilteredCategory(data)
-            console.log('filteredCategory', data)
+            setSecondCategories(data)
         }
-        fetchFilteredCategory();
-        };
+        fetchSecondCategories();
+    }, [])
+
+    // const handleFilterChange = (selectedCateg: string | null) => {
+
+    //     if (!selectedCateg) {
+    //         setFilteredCategory(null); // Réinitialiser si aucun filtre n'est sélectionné
+    //         return;
+    //       }
+    
+    //     const fetchFilteredCategory = async() => {
+    //         const response = await fetch(`/api/recipe?category=${selectedCateg}`);
+    //         const data = await response.json()
+    //         setFilteredCategory(data)
+    //         console.log('filteredCategory', data)
+    //     }
+    //     fetchFilteredCategory();
+    // };
+
+    useEffect(() => {
+        // On suppose que `articles` contient tous les articles
+        let filtered = recipes;
+      
+        if (selectedMainCategory) {
+          filtered = filtered.filter((recipe : Recipe) =>
+            recipe.categories.some((categoryObj) => categoryObj.category.name === selectedMainCategory)
+          );
+        }
+      
+        if (selectedSecondCategory) {
+          filtered = filtered.filter((recipe : Recipe) =>
+            recipe.categories.some((categoryObj) => categoryObj.category.name === selectedSecondCategory)
+          );
+        }
+      
+        setFilteredRecipes(filtered);
+      }, [selectedMainCategory, selectedSecondCategory, recipes]);
 
         // Les recettes à afficher (par défaut ou filtrées)
-        const recipesToDisplay = filteredCategory || recipes;
-        console.log('recipesToDisplay', recipesToDisplay)
+        // const recipesToDisplay = filteredCategory || recipes;
+        // console.log('recipesToDisplay', recipesToDisplay)
 
     return (
         // fragments
@@ -94,19 +136,24 @@ const RecipePage = () => {
             <FilterPanel
                 title="Main Category"
                 options={categories}
-                onFilterChange={handleFilterChange}
+                onFilterChange={handleMainCategoryFilterChange}
+            />
+            <FilterPanel
+                title="Second Category"
+                options={secondCategories}
+                onFilterChange={handleSecondCategoryFilterChange}
             />
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'>
                 {/* Liste des articles */}
                 {/* boucle en js à travers React dans un composant  */}
                 {/* articles > tableau  : article > 1 élément article de la BDD  / un document (mongoDB)*/}
 
-                {recipesToDisplay.length === 0 ? (
+                {filteredRecipes.length === 0 ? (
                     <p>
                         No recipes found. Try adjusting your filters.
                     </p>
                 ) : (
-                    recipesToDisplay.map((recipe: Recipe, index: number) => (
+                    filteredRecipes.map((recipe: Recipe, index: number) => (
                         <RecipeCard2 key={index} recipe={recipe} />
                     ))
                 )}
