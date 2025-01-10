@@ -5,17 +5,32 @@ import Image from 'next/image';
 // import { useState, useEffect } from 'react';
 // afficher style différent pour liens actifs
 import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
+import { useState } from 'react';
+
 
 
 const Nav = () => {
-    const currentPath = usePathname();
+  const currentPath = usePathname();
+  const router = useRouter();
+  const [searchKeyword, setSearchKeyword] = useState('');
+
     const links = [
         { title: 'Profile', url: '/profile' },
         { title: 'Dashboard', url: '/user' },
         { title: 'Admin Dashboard', url: '/admin', role: 'admin' },
         // Add more placeholder links as needed
-      ];
+    ];
+
+
+    const handleSearch = (event) => {
+      event.preventDefault(); 
+      if (searchKeyword.trim()) {
+        router.push(`/search?keyword=${encodeURIComponent(searchKeyword.trim())}`);
+      }
+    };
+
 
     return (
     <nav className='bg-blackColor w-full h-24 px-16 grid grid-cols-[auto_1fr_auto_auto] items-center justify-between josefin'>
@@ -102,6 +117,19 @@ const Nav = () => {
                 </span>
             </Link>
 
+        </div>
+
+        <div className='text-blue-600'> 
+          <p>Search :</p>
+          <form onSubmit={handleSearch}> 
+            <input
+              type="text"
+              value={searchKeyword} // Lier la valeur du champ à l'état
+              onChange={(e) => setSearchKeyword(e.target.value)} // Mettre à jour l'état à chaque changement
+              placeholder="Search recipes or articles"
+              className="border border-gray-300 p-2"
+            />
+          </form>
         </div>
 
         {/* Dark / Light theme */}
