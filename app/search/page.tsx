@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from 'next/navigation';  
 
 type Recipe = {
   id: number;
@@ -17,17 +18,39 @@ type SearchResults = {
   articles: Article[];
 };
 
-const SearchPage = () => {
-  const [results, setResults] = useState<SearchResults | null>(null);
+// version formatée : 
+// type SearchResults = {
+//     recipes: Array<{ id: number; name: string }>;
+//     articles: Array<{ id: number; title: string }>;
+// };
 
-  useEffect(() => {
-    const fetchResults = async () => {
-      const response = await fetch(`/api/search?keyword=lasagna`);
-      const data = await response.json();
-      setResults(data);
-    };
-    fetchResults();
-  }, []);
+type Props = {
+    params: Promise<{ keyword: string }>
+  }
+
+const SearchPage = ({ params }: Props) => {
+  const [results, setResults] = useState<SearchResults | null>(null);
+  const searchParams = useSearchParams();
+  const keyword = searchParams.get('keyword'); 
+  
+
+    console.log("keyword", keyword);
+
+    useEffect(() => {
+        if (keyword) {
+          const fetchResults = async () => {
+            try {
+              const response = await fetch(`/api/search?keyword=${encodeURIComponent(keyword)}`); // encoder le composant d'URL
+              const data = await response.json();
+              setResults(data);
+            } catch (error) {
+              console.error("Error fetching search results:", error);
+            }
+          };
+    
+          fetchResults();
+        }
+      }, [keyword]); // Exécuter l'effet chaque fois que 'keyword' change
 
   return (
     <div>
