@@ -9,9 +9,13 @@ import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useState, useEffect } from 'react';
 
+import SearchSuggestions from "./SearchSuggestions";
+
 const Nav = () => {
   const currentPath = usePathname();
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const links = [
@@ -39,7 +43,34 @@ const Nav = () => {
     };
   }, []);
 
-  const handleSearch = (event) => {
+
+    const handleSearch = async (event) => {
+      const keyword = event.target.value;
+      setSearchKeyword(keyword);
+  
+      if (keyword.length >= 3) {
+        setIsLoading(true); // Commencer le chargement
+  
+        try {
+          // Effectuer la requête à l'API pour récupérer les suggestions
+          const response = await fetch(`/api/search?keyword=${encodeURIComponent(keyword)}`);
+          const data = await response.json();
+  
+          setSuggestions(data); 
+          console.log('suggestions', data);
+        } catch (error) {
+          console.error("Error fetching search suggestions:", error);
+        } finally {
+          setIsLoading(false); // Fin du chargement
+        }
+      } else {
+        setSuggestions([]); // Réinitialiser les suggestions si moins de 3 caractères
+      }
+    };
+
+   
+
+  const handleSubmit  = (event) => {
     event.preventDefault();
     if (searchKeyword.trim()) {
       router.push(
@@ -131,15 +162,18 @@ const Nav = () => {
 
       <div className="text-blue-600">
         <p>Search :</p>
-        <form onSubmit={handleSearch}>
+        <form onSubmit={handleSubmit }>
           <input
             type="text"
             value={searchKeyword} // Lier la valeur du champ à l'état
-            onChange={(e) => setSearchKeyword(e.target.value)} // Mettre à jour l'état à chaque changement
+            onChange={handleSearch}// Mettre à jour l'état à chaque changement
             placeholder="Search recipes or articles"
             className="border border-gray-300 p-2"
           />
         </form>
+        {searchKeyword.length >= 3 && (
+        <SearchSuggestions suggestions={suggestions} isLoading={isLoading} />
+        )}
       </div>
 
       {/* Dark / Light theme */}
