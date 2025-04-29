@@ -1,0 +1,19 @@
+# This pipeline configuration imports a Docker image with the required Node.js version for running Next.js applications. Then, it updates npm and installs dependencies, caching them so subsequent builds are faster.
+
+version: 2.1
+orbs:
+  node: circleci/node@5.1.1
+jobs:
+  build-and-test:
+    docker:
+      - image: "cimg/base:stable"
+    steps:
+      - checkout
+      - node/install
+      - node/install-packages
+      - run:
+          command: npm run test
+workflows:
+  build-and-test:
+    jobs:
+      - build-and-test

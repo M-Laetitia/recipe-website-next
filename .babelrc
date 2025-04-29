@@ -1,0 +1,11 @@
+{
+    "presets": ["next/babel"]
+}
+
+// {
+//     "presets": [
+//         ["next/babel", {
+//             "runtime": "automatic"
+//         }]
+//     ]
+// }
