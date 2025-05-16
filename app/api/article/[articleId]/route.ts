@@ -1,9 +1,12 @@
-import { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { createClerkClient } from "@clerk/backend";
 
-const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! });
+if (!process.env.CLERK_SECRET_KEY) {
+  throw new Error("Missing CLERK_SECRET_KEY in environment variables.");
+}
+
+const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 
 export async function GET(
   request: NextRequest,
