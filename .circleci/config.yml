@@ -5,6 +5,7 @@ version: 2.1
 orbs:
   node: circleci/node@5.1.1
   # Fournit des commandes préconfigurées comme `node/install`, `node/install-packages`
+  github-cli: circleci/github-cli@2.0
 
 # Définition d’un job : un ensemble d’étapes exécutées dans un environnement donné
 jobs:
@@ -21,6 +22,7 @@ jobs:
     # Variables d’environnement injectées dans les deux conteneurs
     environment:
       MONGODB_URI: mongodb://localhost:27017/myproject_test
+      #  pointe vers la base de données MongoDB qui est lancée dans le deuxième conteneur Docker (mongo:5.0) défini dans la configuration.
       NODE_ENV: test
       # Permet à ton code de savoir qu’il tourne en environnement de test
       # La variable MONGODB_URI sera utilisée par ton ORM ou client MongoDB
@@ -66,21 +68,108 @@ jobs:
         # Exécute les tests définis dans le script `"test"` de ton package.json
         # Ces tests doivent se connecter à la base MongoDB via MONGODB_URI
 
-# Définition du workflow : enchaînement logique de jobs
+
+  create-pull-request:
+    docker:
+      - image: cimg/base:2023.03
+    parameters:
+      source-branch:
+        type: string
+      target-branch:
+        type: string
+      title:
+        type: string
+        default: "Automatic PR"
+    steps:
+      - checkout
+      - github-cli/setup:
+          token: GITHUB_TOKEN
+      - run:
+          name: Create Pull Request
+          command: |
+            # Vérifie si une PR existe déjà entre les branches source et target
+            existing_pr=$(gh pr list --state open --base << parameters.target-branch >> --head << parameters.source-branch >> --json number --jq "length")
+            
+            if [ "$existing_pr" -eq "0" ]; then
+              echo "Création d'une nouvelle PR de << parameters.source-branch >> vers << parameters.target-branch >>"
+              gh pr create --base << parameters.target-branch >> --head << parameters.source-branch >> \
+                --title "<< parameters.title >>" \
+                --body "Cette PR a été créée automatiquement par le pipeline CI/CD après validation des tests."
+            else
+              echo "Une PR existe déjà entre << parameters.source-branch >> et << parameters.target-branch >>. Aucune nouvelle PR créée."
+            fi
+
+  deploy-to-vercel:
+    docker:
+      - image: cimg/node:20.1
+    steps:
+      - checkout
+      - node/install
+      - node/install-packages
+      - run:
+          name: Install Vercel CLI
+          command: npm install -g vercel
+      - run:
+          name: Deploy to Vercel
+          command: |
+            # Déploiement sur Vercel avec l'environnement de production
+            vercel --prod --token ${VERCEL_TOKEN}
+
 workflows:
-  build-and-test-on-dev:
+  version: 2
+  ci-cd-pipeline:
     jobs:
+      # Tests sur la branche dev
       - build-and-test:
+          name: test-dev
           filters:
             branches:
               only: dev
-          # Ce job ne sera exécuté QUE sur la branche `dev`
-          # Empêche le pipeline de tourner pour d’autres branches comme `main` ou `test`
+
+      # Création de PR de dev vers test après tests réussis
+      - create-pull-request:
+          name: pr-dev-to-test
+          requires:
+            - test-dev
+          parameters:
+            source-branch: "dev"
+            target-branch: "test"
+            title: "Merge dev into test"
+          filters:
+            branches:
+              only: dev
+
+      # Tests sur la branche test
+      - build-and-test:
+          name: test-test
+          filters:
+            branches:
+              only: test
+
+      # Création de PR de test vers main après tests réussis
+      - create-pull-request:
+          name: pr-test-to-main
+          requires:
+            - test-test
+          parameters:
+            source-branch: "test"
+            target-branch: "main"
+            title: "Merge test into main"
+          filters:
+            branches:
+              only: test
+
+      # Déploiement sur Vercel après merge sur main
+      - deploy-to-vercel:
+          requires:
+            - build-and-test
+          filters:
+            branches:
+              only: main
 
 
 
 
-          
 # + deploy require bluid and test
 # Juste ci pas de cd
 
