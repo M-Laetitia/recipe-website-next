@@ -8,7 +8,7 @@ if (!process.env.CLERK_SECRET_KEY) {
 
 const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 
-export async function GET(request, context) {
+export async function GET(request , context) {
   try {
     const { articleId } = context.params;
 
