@@ -1,56 +1,32 @@
-# Indique à CircleCI la version de configuration utilisée
 version: 2.1
 
-# Import d’un “orb” : un module réutilisable CircleCI pour Node.js
 orbs:
   node: circleci/node@5.1.1
-  # Fournit des commandes préconfigurées comme `node/install`, `node/install-packages`
   github-cli: circleci/github-cli@2.0
 
-# Définition d’un job : un ensemble d’étapes exécutées dans un environnement donné
 jobs:
+  # Job pour exécuter les tests
   build-and-test:
     docker:
-      # Premier conteneur Docker principal : Node.js (ici cimg/node:20.1)
       - image: cimg/node:20.1
-        # Cette image contient une version moderne de Node.js, utilisée pour ton projet Next.js
-
-      # Deuxième conteneur : MongoDB, utilisé comme service pour exécuter les tests
       - image: mongo:5.0
-        # Conteneur Mongo officiel – version 5.0 (à adapter si besoin)
 
-    # Variables d’environnement injectées dans les deux conteneurs
     environment:
       MONGODB_URI: mongodb://localhost:27017/myproject_test
-      #  pointe vers la base de données MongoDB qui est lancée dans le deuxième conteneur Docker (mongo:5.0) défini dans la configuration.
       NODE_ENV: test
-      # Permet à ton code de savoir qu’il tourne en environnement de test
-      # La variable MONGODB_URI sera utilisée par ton ORM ou client MongoDB
 
-    # Étapes à exécuter dans ce job
     steps:
       - checkout
-        # Clone ton dépôt Git dans le conteneur
-
       - node/install
-        # Installe Node.js via l’orb, en se basant sur `.nvmrc` ou `package.json` si précisé
-
       - restore_cache:
           keys:
             - deps-{{ checksum "package-lock.json" }}
             - deps-
-        # Essaie de restaurer un cache existant des dépendances Node.js pour accélérer le build
-        # `{{ checksum "package-lock.json" }}` permet de valider que c’est bien le même jeu de dépendances
-
       - node/install-packages
-        # Lance automatiquement `npm install` ou `yarn install` selon le lockfile détecté
-
       - save_cache:
           paths:
             - node_modules
           key: deps-{{ checksum "package-lock.json" }}
-        # Sauvegarde le cache des dépendances après installation pour les prochaines exécutions
-
       - run:
           name: Wait for MongoDB
           command: |
@@ -59,46 +35,67 @@ jobs:
               echo "Waiting for MongoDB..."
               sleep 2
             done
-        # Attente active : vérifie toutes les 2 secondes pendant 40s que MongoDB est bien lancé
-        # Important car sinon les tests peuvent échouer si Mongo n’est pas prêt
-
       - run:
           name: Run Tests
           command: npm run test
-        # Exécute les tests définis dans le script `"test"` de ton package.json
-        # Ces tests doivent se connecter à la base MongoDB via MONGODB_URI
 
-
-  create-pull-request:
+  # Job spécifique pour créer une PR de dev vers test
+  create-pr-dev-to-test:
     docker:
       - image: cimg/base:2023.03
-    parameters:
-      source-branch:
-        type: string
-      target-branch:
-        type: string
-      title:
-        type: string
-        default: "Automatic PR"
     steps:
       - checkout
-      - github-cli/setup:
-          token: GITHUB_TOKEN
+      - github-cli/setup
       - run:
-          name: Create Pull Request
+          name: Create PR from dev to test
           command: |
-            # Vérifie si une PR existe déjà entre les branches source et target
-            existing_pr=$(gh pr list --state open --base << parameters.target-branch >> --head << parameters.source-branch >> --json number --jq "length")
+            echo "Checking if GitHub CLI is installed:"
+            which gh || (echo "GitHub CLI not found" && exit 1)
+            
+            echo "Checking GitHub authentication:"
+            gh auth status || (echo "GitHub authentication failed" && exit 1)
+            
+            echo "Checking for existing PR:"
+            existing_pr=$(gh pr list --state open --base test --head dev --json number | grep -c '"number":' || echo "0")
             
             if [ "$existing_pr" -eq "0" ]; then
-              echo "Création d'une nouvelle PR de << parameters.source-branch >> vers << parameters.target-branch >>"
-              gh pr create --base << parameters.target-branch >> --head << parameters.source-branch >> \
-                --title "<< parameters.title >>" \
-                --body "Cette PR a été créée automatiquement par le pipeline CI/CD après validation des tests."
+              echo "Creating PR from dev to test"
+              gh pr create --base test --head dev \
+                --title "Merge dev into test" \
+                --body "This PR was automatically created by the CI/CD pipeline after tests passed."
             else
-              echo "Une PR existe déjà entre << parameters.source-branch >> et << parameters.target-branch >>. Aucune nouvelle PR créée."
+              echo "A PR already exists between dev and test. No new PR created."
             fi
 
+  # Job spécifique pour créer une PR de test vers main
+  create-pr-test-to-main:
+    docker:
+      - image: cimg/base:2023.03
+    steps:
+      - checkout
+      - github-cli/setup
+      - run:
+          name: Create PR from test to main
+          command: |
+            echo "Checking if GitHub CLI is installed:"
+            which gh || (echo "GitHub CLI not found" && exit 1)
+            
+            echo "Checking GitHub authentication:"
+            gh auth status || (echo "GitHub authentication failed" && exit 1)
+            
+            echo "Checking for existing PR:"
+            existing_pr=$(gh pr list --state open --base main --head test --json number | grep -c '"number":' || echo "0")
+            
+            if [ "$existing_pr" -eq "0" ]; then
+              echo "Creating PR from test to main"
+              gh pr create --base main --head test \
+                --title "Merge test into main" \
+                --body "This PR was automatically created by the CI/CD pipeline after tests passed."
+            else
+              echo "A PR already exists between test and main. No new PR created."
+            fi
+
+  # Job pour déployer sur Vercel
   deploy-to-vercel:
     docker:
       - image: cimg/node:20.1
@@ -112,61 +109,51 @@ jobs:
       - run:
           name: Deploy to Vercel
           command: |
-            # Déploiement sur Vercel avec l'environnement de production
+            echo "Deploying to Vercel..."
             vercel --prod --token ${VERCEL_TOKEN}
 
 workflows:
   version: 2
   ci-cd-pipeline:
     jobs:
-      # Tests sur la branche dev
+      # Workflow pour la branche dev
       - build-and-test:
           name: test-dev
           filters:
             branches:
               only: dev
-
-      # Création de PR de dev vers test après tests réussis
-      - create-pull-request:
-          name: pr-dev-to-test
+      - create-pr-dev-to-test:
           requires:
             - test-dev
-          parameters:
-            source-branch: dev
-            target-branch: test
-            title: "Merge dev into test"
           filters:
             branches:
               only: dev
 
-      # Tests sur la branche test
+      # Workflow pour la branche test
       - build-and-test:
           name: test-test
           filters:
             branches:
               only: test
-
-      # Création de PR de test vers main après tests réussis
-      - create-pull-request:
-          name: pr-test-to-main
+      - create-pr-test-to-main:
           requires:
             - test-test
-          parameters:
-            source-branch: test
-            target-branch: main
-            title: "Merge test into main"
           filters:
             branches:
               only: test
 
-      # Déploiement sur Vercel après merge sur main
-      - deploy-to-vercel:
-          requires:
-            - build-and-test
+      # Workflow pour la branche main
+      - build-and-test:
+          name: test-main
           filters:
             branches:
               only: main
-
+      - deploy-to-vercel:
+          requires:
+            - test-main
+          filters:
+            branches:
+              only: main
 
 
 
