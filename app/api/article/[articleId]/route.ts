@@ -1,7 +1,9 @@
-import { db} from "@/lib/db"
-import { NextRequest, NextResponse } from "next/server";
-import { clerkClient } from "@clerk/express"; 
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { createClerkClient } from "@clerk/backend";
 
+const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! });
 
 export async function GET(
   request: NextRequest,
@@ -28,11 +30,11 @@ export async function GET(
       return new NextResponse("Article not found", { status: 404 });
     }
 
-    const user = await clerkClient.users.getUser(article.userId).catch(() => null);
+    const user = await clerk.users.getUser(article.userId).catch(() => null);
 
     const commentsWithUsers = await Promise.all(
       article.comments.map(async (comment) => {
-        const user = await clerkClient.users.getUser(comment.userId).catch(() => null);
+        const user = await clerk.users.getUser(comment.userId).catch(() => null);
         return { ...comment, user };
       })
     );
