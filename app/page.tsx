@@ -33,6 +33,7 @@ const Home = () => {
   const borderColors = ['#D98341', '#EAEAEA', '#D98341']
   const fontColors = ['#EAEAEA', '#D98341', '#EAEAEA']
 
+
   useEffect (() => {
     const fetchCategories = async() => {
       const response = await fetch('/api/category?main=true')
@@ -72,22 +73,29 @@ const Home = () => {
   return (
     <>
       {/* SECTION 1 - HERO */}
-      <section className="relative w-full flex-center flex-col" style={{ height: 'calc(100vh - 96px)' }}>
-        <div className='absolute z-20'>
-          <div>LOGO</div>
-          <p>NAME WEBSITE</p>
+      <section className="relative w-full flex items-center justify-center flex-col" style={{ height: 'calc(100vh - 96px)' }}>
+        <div className='absolute z-20 flex flex-col items-center justify-normal'>
+          <div className='w-[300px] h-auto flex items-center justify-center opacity-80'>
+            <Image
+              src="/img/logo-hero.png"
+              alt="Logo of the website"
+              // layout="responsive"
+              width={522} 
+              height={600}
+              />
+          </div>
+          <p className='text-3xl font-thin m-8'><span className='text-accentColor font-normal'>Discover</span> new flavors. <span className='text-accentColor font-normal'>Cook</span> with passion. <span className='text-accentColor font-normal'>Share</span> joy.</p>
         </div>
         <div className='absolute w-full h-full bg-[#0B161A] opacity-80 z-10'></div>
         <figure className='w-full h-full relative overflow-hidden'>
             <Image
             src="/img/top-view-table-full-food.jpg"
             alt="A table seen from above with different dishes"
-            //intrinsic / fill
-            layout="responsive"
+            // layout="responsive"
             width={2000} 
             height={1333}
-            // cover
-            objectFit="contain"
+            // objectFit="contain"
+            style={{ objectFit: 'contain' }}
             />
         </figure>
       </section>

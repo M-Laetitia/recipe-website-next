@@ -55,7 +55,7 @@ body {
 }
 
 .cursive-medium {
-  @apply font-light text-[2.8rem] leading-5 tracking-normal;
+  @apply font-light text-[2.8rem] leading-5 tracking-wide;
   font-family: var(--font-cursive);
 }
 

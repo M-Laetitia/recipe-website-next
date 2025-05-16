@@ -88,7 +88,9 @@ export async function GET(request: NextRequest, { params }: Props) {
               user: {
                 id: user.id,
                 username: user.username || null,
+                imageUrl : user.imageUrl,
               },
+              // user: { ...user }, // Inclut toutes les données de l'utilisateur
             };
           } catch (error) {
             console.error(`Erreur lors de la récupération de l'user pour la review ${review.id}:`, error);
@@ -106,7 +108,7 @@ export async function GET(request: NextRequest, { params }: Props) {
         reviews: reviewsWithUsers, 
       };
   
-      console.log("recette détail + user + reviews user", recipeWithUserAndReviews);
+      // console.log("recette détail + user + reviews user", recipeWithUserAndReviews);
   
         return NextResponse.json(recipeWithUserAndReviews);
       } catch (error) {
