@@ -1,19 +1,179 @@
-# This pipeline configuration imports a Docker image with the required Node.js version for running Next.js applications. Then, it updates npm and installs dependencies, caching them so subsequent builds are faster.
-
 version: 2.1
+
 orbs:
   node: circleci/node@5.1.1
+  github-cli: circleci/github-cli@2.0
+
 jobs:
+  # Job pour exécuter les tests
   build-and-test:
     docker:
-      - image: "cimg/base:stable"
+      - image: cimg/node:20.1
+      - image: mongo:5.0
+
+    environment:
+      MONGODB_URI: mongodb://localhost:27017/myproject_test
+      NODE_ENV: test
+
+    steps:
+      - checkout
+      - node/install
+      - restore_cache:
+          keys:
+            - deps-{{ checksum "package-lock.json" }}
+            - deps-
+      - node/install-packages
+      - save_cache:
+          paths:
+            - node_modules
+          key: deps-{{ checksum "package-lock.json" }}
+      - run:
+          name: Wait for MongoDB
+          command: |
+            for i in `seq 1 20`; do
+              nc -z localhost 27017 && echo "MongoDB is up!" && break
+              echo "Waiting for MongoDB..."
+              sleep 2
+            done
+      - run:
+          name: Run Tests
+          command: npm run test
+
+  # Job spécifique pour créer une PR de dev vers test
+  create-pr-dev-to-test:
+    docker:
+      - image: cimg/base:2023.03
+    steps:
+      - checkout
+      - github-cli/setup
+      - run:
+          gh auth status
+      
+      - run:
+          name: Create PR from dev to test
+          command: |
+           echo "Authentification GitHub"
+            gh auth status
+
+            echo "Recherche de PR existantes dev -> test"
+            existing_pr_count=$(gh pr list --state open --base test --head dev --json number -q '.[].number' | wc -l)
+            echo "Nombre de PRs existantes: $existing_pr_count"
+
+            if [ "$existing_pr_count" -eq 0 ]; then
+              echo "Création de la PR dev → test..."
+              gh pr create --base test --head dev \
+                --title "Merge dev into test" \
+                --body "Cette PR a été automatiquement créée par le pipeline CI/CD après que les tests aient réussi."
+            else
+              echo "Une PR existe déjà entre dev et test. Pas de nouvelle PR créée."
+            fi
+
+  # Job spécifique pour créer une PR de test vers main
+  create-pr-test-to-main:
+    docker:
+      - image: cimg/base:2023.03
+    steps:
+      - checkout
+      - github-cli/setup
+      - run:
+          gh auth status
+      - run:
+          name: Create PR from test to main
+          command: |
+            echo "Checking for existing PR..."
+            existing_pr=$(gh pr list --state open --base main --head test --json number | grep -c '"number":' || echo "0")
+
+            if [ "$existing_pr" -eq "0" ]; then
+              echo "Creating PR from test to main"
+              gh pr create --base main --head test \
+                --title "Merge test into main" \
+                --body "This PR was automatically created by the CI/CD pipeline after tests passed."
+            else
+              echo "A PR already exists between test and main. No new PR created."
+            fi
+
+  # Job pour déployer sur Vercel
+  deploy-to-vercel:
+    docker:
+      - image: cimg/node:20.1
     steps:
       - checkout
       - node/install
       - node/install-packages
       - run:
-          command: npm run test
+          name: Install Vercel CLI
+          command: npm install -g vercel
+      - run:
+          name: Deploy to Vercel
+          command: |
+            echo "Deploying to Vercel..."
+            vercel --prod --token ${VERCEL_TOKEN}
+
 workflows:
-  build-and-test:
+  version: 2
+  ci-cd-pipeline:
     jobs:
-      - build-and-test
+      # Workflow pour la branche dev
+      - build-and-test:
+          name: test-dev
+          filters:
+            branches:
+              only: dev
+      - create-pr-dev-to-test:
+          requires:
+            - test-dev
+          filters:
+            branches:
+              only: dev
+
+      # Workflow pour la branche test
+      - build-and-test:
+          name: test-test
+          filters:
+            branches:
+              only: test
+      - create-pr-test-to-main:
+          requires:
+            - test-test
+          filters:
+            branches:
+              only: test
+
+      # Workflow pour la branche main
+      - build-and-test:
+          name: test-main
+          filters:
+            branches:
+              only: main
+      - deploy-to-vercel:
+          requires:
+            - test-main
+          filters:
+            branches:
+              only: main
+
+
+
+# + deploy require bluid and test
+# Juste ci pas de cd
+
+# on push sur dev ou pull request vers dev
+# lint > estlint + test 
+# pull request de dev vers test + ci obligatoire revue de code possible avec la pull resquest (git) puis fusion manuelle si tout se passe bien c'est ici qu'on valide
+# la branche test que du code véfiié
+# puis fusion vers main pull request
+
+# début test unitaire puis avant de main test end to end 
+
+# puis déploiement auto sur vercel
+
+# push dev
+# dev
+# pull resquet avect test
+# branche test
+# pull request avec main
+
+
+#ajuste un ci pas un cd, pipeline check si les test passent avant tout déploiement
+
+# > faire en sorte que les tests se fassent sur l'env. test 

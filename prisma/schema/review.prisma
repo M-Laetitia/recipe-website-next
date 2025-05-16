@@ -1,14 +1,14 @@
 model Review {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String?
   content     String
-  createdAt DateTime @default(now())
-  userId String
+  createdAt   DateTime @default(now())
+  userId      String
 
   recipeId String   @db.ObjectId
   recipe   Recipe  @relation(fields: [recipeId], references: [id])
   @@index([recipeId])
 
-  
 }
 
 

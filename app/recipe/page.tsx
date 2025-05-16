@@ -143,21 +143,27 @@ const RecipePage = () => {
                 options={secondCategories}
                 onFilterChange={handleSecondCategoryFilterChange}
             />
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'>
-                {/* Liste des articles */}
-                {/* boucle en js à travers React dans un composant  */}
-                {/* articles > tableau  : article > 1 élément article de la BDD  / un document (mongoDB)*/}
 
-                {filteredRecipes.length === 0 ? (
-                    <p>
-                        No recipes found. Try adjusting your filters.
-                    </p>
-                ) : (
-                    filteredRecipes.map((recipe: Recipe, index: number) => (
-                        <RecipeCard2 key={index} recipe={recipe} />
-                    ))
-                )}
-            </div>
+            <section className='w-[80%] m-auto border-2 border-solid border-red-500'>
+
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5'>
+                    {/* Liste des articles */}
+                    {/* boucle en js à travers React dans un composant  */}
+                    {/* articles > tableau  : article > 1 élément article de la BDD  / un document (mongoDB)*/}
+
+                    {filteredRecipes.length === 0 ? (
+                        <p>
+                            No recipes found. Try adjusting your filters.
+                        </p>
+                    ) : (
+                        filteredRecipes.map((recipe: Recipe, index: number) => (
+                            <RecipeCard2 key={index} recipe={recipe} />
+                        ))
+                    )}
+                </div>
+
+            </section>
+
 
           
         </>

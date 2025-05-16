@@ -1,6 +1,5 @@
 import React from 'react';
-import {ChefHat  } from 'lucide-react';;
- 
+
 // Définition de l'interface pour les props
 interface DifficultyProps {
     difficulty: number;

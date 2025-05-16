@@ -12,6 +12,7 @@ const config: Config = {
       colors: {
         blackColor: 'var(--blackColor)',
         darkGrey: 'var(--darkGrey)',
+        lightGrey : 'var(--lightGrey)',
         accentColor: 'var(--accentColor)',
         whiteColor: 'var(--whiteColor)',
       },

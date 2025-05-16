@@ -2,10 +2,10 @@ import React from 'react'
  
 interface TagProps {
     text: string;
-    bgColor : string; 
-  }
+    bgColor? : string; 
+}
 
-const Tag = ({ text , bgColor}: TagProps) => {
+const Tag = ({ text , bgColor = 'var(--accentColor)'}: TagProps) => {
 
     return (
          <div 
