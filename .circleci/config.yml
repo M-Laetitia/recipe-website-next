@@ -47,17 +47,15 @@ jobs:
       - checkout
       - github-cli/setup
       - run:
+          name: GitHub Auth
+          command: echo "${GITHUB_TOKEN}" | gh auth login --with-token
+      
+      - run:
           name: Create PR from dev to test
           command: |
-            echo "Checking if GitHub CLI is installed:"
-            which gh || (echo "GitHub CLI not found" && exit 1)
-            
-            echo "Checking GitHub authentication:"
-            gh auth status || (echo "GitHub authentication failed" && exit 1)
-            
-            echo "Checking for existing PR:"
+           echo "Checking for existing PR..."
             existing_pr=$(gh pr list --state open --base test --head dev --json number | grep -c '"number":' || echo "0")
-            
+
             if [ "$existing_pr" -eq "0" ]; then
               echo "Creating PR from dev to test"
               gh pr create --base test --head dev \
@@ -75,17 +73,14 @@ jobs:
       - checkout
       - github-cli/setup
       - run:
+          name: GitHub Auth
+          command: echo "${GITHUB_TOKEN}" | gh auth login --with-token
+      - run:
           name: Create PR from test to main
           command: |
-            echo "Checking if GitHub CLI is installed:"
-            which gh || (echo "GitHub CLI not found" && exit 1)
-            
-            echo "Checking GitHub authentication:"
-            gh auth status || (echo "GitHub authentication failed" && exit 1)
-            
-            echo "Checking for existing PR:"
+             echo "Checking for existing PR..."
             existing_pr=$(gh pr list --state open --base main --head test --json number | grep -c '"number":' || echo "0")
-            
+
             if [ "$existing_pr" -eq "0" ]; then
               echo "Creating PR from test to main"
               gh pr create --base main --head test \
@@ -154,6 +149,8 @@ workflows:
           filters:
             branches:
               only: main
+
+
 
 # + deploy require bluid and test
 # Juste ci pas de cd
