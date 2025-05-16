@@ -215,4 +215,9 @@ const config = {
 
 
 
-module.exports = config;
+module.exports = {
+  transform: {
+    '^.+\\.jsx?$': 'babel-jest',
+  },
+  // Autres configurations Jest
+};
