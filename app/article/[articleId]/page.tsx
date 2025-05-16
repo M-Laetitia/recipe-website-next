@@ -54,7 +54,7 @@ type User = {
 
 type Props = {
     params: Promise<{ articleId: string }>
-}
+};
 
 const commentSchema = z.object({
     content: z.string().min(1, {message: "Content is required"}),

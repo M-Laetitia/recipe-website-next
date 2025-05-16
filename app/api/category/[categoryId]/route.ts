@@ -12,7 +12,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 type Props = {
   params: Promise<{ categoryId: string }>
-}
+};
 
 
 export async function GET(request: NextRequest, { params }: Props) {
