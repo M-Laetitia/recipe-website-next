@@ -47,8 +47,7 @@ jobs:
       - checkout
       - github-cli/setup
       - run:
-          name: GitHub Auth
-          command: echo "${GITHUB_TOKEN}" | gh auth login --with-token
+          gh auth status
       
       - run:
           name: Create PR from dev to test
@@ -73,8 +72,7 @@ jobs:
       - checkout
       - github-cli/setup
       - run:
-          name: GitHub Auth
-          command: echo "${GITHUB_TOKEN}" | gh auth login --with-token
+          gh auth status
       - run:
           name: Create PR from test to main
           command: |
