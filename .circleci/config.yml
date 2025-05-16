@@ -1,32 +1,53 @@
+# Indique à CircleCI la version de configuration utilisée
 version: 2.1
 
+# Import d’un “orb” : un module réutilisable CircleCI pour Node.js
 orbs:
   node: circleci/node@5.1.1
+    # Fournit des commandes préconfigurées comme `node/install`, `node/install-packages`
   github-cli: circleci/github-cli@2.0
 
+# Définition d’un job : un ensemble d’étapes exécutées dans un environnement donné
 jobs:
   # Job pour exécuter les tests
   build-and-test:
     docker:
+    # Premier conteneur Docker principal : Node.js (ici cimg/node:20.1)
       - image: cimg/node:20.1
+      # Cette image contient une version moderne de Node.js, utilisée pour ton projet Next.js
+       # Deuxième conteneur : MongoDB, utilisé comme service pour exécuter les tests
       - image: mongo:5.0
+       # Conteneur Mongo officiel – version 5.0 (à adapter si besoin)
 
+    # Variables d’environnement injectées dans les deux conteneurs
     environment:
       MONGODB_URI: mongodb://localhost:27017/myproject_test
+       #  pointe vers la base de données MongoDB qui est lancée dans le deuxième conteneur Docker (mongo:5.0) défini dans la configuration.
       NODE_ENV: test
+      # Permet à ton code de savoir qu’il tourne en environnement de test
+      # La variable MONGODB_URI sera utilisée par ton ORM ou client MongoDB
 
+    # Étapes à exécuter dans ce job
     steps:
       - checkout
+      # Clone ton dépôt Git dans le conteneur
       - node/install
+      # Installe Node.js via l’orb, en se basant sur `.nvmrc` ou `package.json` si précisé
       - restore_cache:
           keys:
             - deps-{{ checksum "package-lock.json" }}
             - deps-
+            # Essaie de restaurer un cache existant des dépendances Node.js pour accélérer le build
+        # `{{ checksum "package-lock.json" }}` permet de valider que c’est bien le même jeu de dépendances
+
       - node/install-packages
+      # Lance automatiquement `npm install` ou `yarn install` selon le lockfile détecté
+
       - save_cache:
           paths:
             - node_modules
           key: deps-{{ checksum "package-lock.json" }}
+          # Sauvegarde le cache des dépendances après installation pour les prochaines exécutions
       - run:
           name: Wait for MongoDB
           command: |
@@ -35,22 +56,33 @@ jobs:
               echo "Waiting for MongoDB..."
               sleep 2
             done
+        # Attente active : vérifie toutes les 2 secondes pendant 40s que MongoDB est bien lancé
+        # Important car sinon les tests peuvent échouer si Mongo n’est pas prêt
       - run:
           name: Run Tests
           command: npm run test
+        # Exécute les tests définis dans le script `"test"` de ton package.json
+        # Ces tests doivent se connecter à la base MongoDB via MONGODB_URI
 
   # Job spécifique pour créer une PR de dev vers test
   create-pr-dev-to-test:
     docker:
       - image: cimg/base:2023.03
+      # Utilise une image Docker de base de CircleCI, suffisante pour exécuter des scripts shell simples. Pas besoin ici de Node ou Mongo, car ce job ne fait que créer une Pull Request.
     steps:
       - checkout
+      # clone le dépôt GitHub dans l’environnement.
       - github-cli/setup
+      #  installe l’outil en ligne de commande GitHub CLI (gh) pour interagir avec GitHub via script.
       - run:
           gh auth status
+          # Vérifie l’état de l’authentification GitHub : indispensable pour pouvoir créer une PR automatiquement.
       
-      - run:
+      - run: 
           name: Create PR from dev to test
+          # Double vérification que l’auth est fonctionnelle (surtout utile en debug ou première config).
+          # Vérifie s’il y a déjà une PR ouverte allant de dev vers test.
+          # Si aucune PR n’existe encore, on en crée une automatiquement :
           command: |
            echo "Authentification GitHub"
             gh auth status
@@ -76,14 +108,21 @@ jobs:
       - checkout
       - github-cli/setup
       - run:
+        # Configure Git dans l’environnement pour éviter les warnings.
+        # Définit manuellement l’URL du dépôt (nécessaire ici à cause d’un bug ou comportement dans CircleCI).
+        # Force le fetch des branches test et master pour s’assurer que gh pr create voit bien les commits.
+        # /!\ idéalement créer des variables d'environnement pour le repo
+        # git remote set-url origin https://github.com/M-Laetitia/recipe-website-next.git
           name: Setup Git and Fetch All Branches
           command: |
             git config --global --add safe.directory /root/project
-            git remote set-url origin https://github.com/M-Laetitia/recipe-website-next.git
+            git remote set-url origin "$CIRCLE_REPOSITORY_URL"
             git fetch origin test master --update-head-ok
             git fetch --all --prune
       - run:
           name: Create PR from test to master
+          # Utilise jq pour compter le nombre de PR ouvertes de test → master.
+          # Crée une PR automatiquement si aucune n’existe.
           command: |
             echo "Checking for existing PR..."
             existing_pr=$(gh pr list --state open --base master --head test --json number | jq length)
@@ -102,35 +141,42 @@ jobs:
   deploy-to-vercel:
     docker:
       - image: cimg/node:20.1
+      # Environnement Node.js requis pour exécuter des builds et le CLI Vercel.
     steps:
       - checkout
       - node/install
       - node/install-packages
+      # Clone le repo, installe Node.js, puis les dépendances via npm install.
       - run:
           name: Install Vercel CLI
           command: npm install -g vercel
+          # Installe le CLI Vercel globalement pour pouvoir déployer.
       - run:
           name: Deploy to Vercel
           command: |
             echo "Deploying to Vercel..."
             vercel --prod --token ${VERCEL_TOKEN}
+          # Déploie en production sur Vercel, en utilisant le token d’authentification passé via la variable d’environnement VERCEL_TOKEN.
 
 workflows:
   version: 2
   ci-cd-pipeline:
     jobs:
       # Workflow pour la branche dev
+      # Déclare le pipeline global qui coordonne l’ordre d’exécution des jobs selon la branche.
       - build-and-test:
           name: test-dev
           filters:
             branches:
               only: dev
+            # Lance les tests quand push sur dev.
       - create-pr-dev-to-test:
           requires:
             - test-dev
           filters:
             branches:
               only: dev
+      # Si les tests passent, crée automatiquement une PR de dev vers test.
 
       # Workflow pour la branche test
       - build-and-test:
