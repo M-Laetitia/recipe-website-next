@@ -1,19 +1,106 @@
-# This pipeline configuration imports a Docker image with the required Node.js version for running Next.js applications. Then, it updates npm and installs dependencies, caching them so subsequent builds are faster.
-
+# Indique à CircleCI la version de configuration utilisée
 version: 2.1
+
+# Import d’un “orb” : un module réutilisable CircleCI pour Node.js
 orbs:
   node: circleci/node@5.1.1
+  # Fournit des commandes préconfigurées comme `node/install`, `node/install-packages`
+
+# Définition d’un job : un ensemble d’étapes exécutées dans un environnement donné
 jobs:
   build-and-test:
     docker:
-      - image: "cimg/base:stable"
+      # Premier conteneur Docker principal : Node.js (ici cimg/node:20.1)
+      - image: cimg/node:20.1
+        # Cette image contient une version moderne de Node.js, utilisée pour ton projet Next.js
+
+      # Deuxième conteneur : MongoDB, utilisé comme service pour exécuter les tests
+      - image: mongo:5.0
+        # Conteneur Mongo officiel – version 5.0 (à adapter si besoin)
+
+    # Variables d’environnement injectées dans les deux conteneurs
+    environment:
+      MONGODB_URI: mongodb://localhost:27017/myproject_test
+      NODE_ENV: test
+      # Permet à ton code de savoir qu’il tourne en environnement de test
+      # La variable MONGODB_URI sera utilisée par ton ORM ou client MongoDB
+
+    # Étapes à exécuter dans ce job
     steps:
       - checkout
+        # Clone ton dépôt Git dans le conteneur
+
       - node/install
+        # Installe Node.js via l’orb, en se basant sur `.nvmrc` ou `package.json` si précisé
+
+      - restore_cache:
+          keys:
+            - deps-{{ checksum "package-lock.json" }}
+            - deps-
+        # Essaie de restaurer un cache existant des dépendances Node.js pour accélérer le build
+        # `{{ checksum "package-lock.json" }}` permet de valider que c’est bien le même jeu de dépendances
+
       - node/install-packages
+        # Lance automatiquement `npm install` ou `yarn install` selon le lockfile détecté
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: deps-{{ checksum "package-lock.json" }}
+        # Sauvegarde le cache des dépendances après installation pour les prochaines exécutions
+
       - run:
+          name: Wait for MongoDB
+          command: |
+            for i in `seq 1 20`; do
+              nc -z localhost 27017 && echo "MongoDB is up!" && break
+              echo "Waiting for MongoDB..."
+              sleep 2
+            done
+        # Attente active : vérifie toutes les 2 secondes pendant 40s que MongoDB est bien lancé
+        # Important car sinon les tests peuvent échouer si Mongo n’est pas prêt
+
+      - run:
+          name: Run Tests
           command: npm run test
+        # Exécute les tests définis dans le script `"test"` de ton package.json
+        # Ces tests doivent se connecter à la base MongoDB via MONGODB_URI
+
+# Définition du workflow : enchaînement logique de jobs
 workflows:
-  build-and-test:
+  build-and-test-on-dev:
     jobs:
-      - build-and-test
+      - build-and-test:
+          filters:
+            branches:
+              only: dev
+          # Ce job ne sera exécuté QUE sur la branche `dev`
+          # Empêche le pipeline de tourner pour d’autres branches comme `main` ou `test`
+
+
+
+
+          
+# + deploy require bluid and test
+# Juste ci pas de cd
+
+# on push sur dev ou pull request vers dev
+# lint > estlint + test 
+# pull request de dev vers test + ci obligatoire revue de code possible avec la pull resquest (git) puis fusion manuelle si tout se passe bien c'est ici qu'on valide
+# la branche test que du code véfiié
+# puis fusion vers main pull request
+
+# début test unitaire puis avant de main test end to end 
+
+# puis déploiement auto sur vercel
+
+# push dev
+# dev
+# pull resquet avect test
+# branche test
+# pull request avec main
+
+
+#ajuste un ci pas un cd, pipeline check si les test passent avant tout déploiement
+
+# > faire en sorte que les tests se fassent sur l'env. test 
