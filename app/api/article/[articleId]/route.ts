@@ -12,7 +12,7 @@ import { clerkClient } from "@clerk/express";
 
 //3 
 type Props = {
-  params: Promise<{ articleId: string }>
+  params: Promise<{ articleId: string }>;
 };
 
 export async function GET(request: NextRequest, { params }: Props) {
