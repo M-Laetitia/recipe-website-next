@@ -52,19 +52,20 @@ jobs:
       - run:
           name: Create PR from dev to test
           command: |
-           echo "Listing existing PRs:"
-            gh pr list --state open --base test --head dev --json number
+           echo "Authentification GitHub"
+            gh auth status
 
-            existing_pr=$(gh pr list --state open --base test --head dev --json number | grep -c '"number":' || echo "0")
-            echo "Number of existing PRs: $existing_pr"
+            echo "Recherche de PR existantes dev -> test"
+            existing_pr_count=$(gh pr list --state open --base test --head dev --json number -q '.[].number' | wc -l)
+            echo "Nombre de PRs existantes: $existing_pr_count"
 
-            if [ "$existing_pr" -eq "0" ]; then
-              echo "Creating PR from dev to test"
+            if [ "$existing_pr_count" -eq 0 ]; then
+              echo "Création de la PR dev → test..."
               gh pr create --base test --head dev \
                 --title "Merge dev into test" \
-                --body "This PR was automatically created by the CI/CD pipeline after tests passed." || echo "Failed to create PR"
+                --body "Cette PR a été automatiquement créée par le pipeline CI/CD après que les tests aient réussi."
             else
-              echo "A PR already exists between dev and test. No new PR created."
+              echo "Une PR existe déjà entre dev et test. Pas de nouvelle PR créée."
             fi
 
   # Job spécifique pour créer une PR de test vers main
