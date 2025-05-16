@@ -79,7 +79,7 @@ jobs:
           name: Setup Git and Fetch All Branches
           command: |
             git config --global --add safe.directory /root/project
-            git remote set-url origin https://github.com/<< ton_user >>/<< ton_repo >>.git
+            git remote set-url origin https://github.com/<<M-Laetitia >>/<< recipe-website-next >>.git
             git fetch origin test main --update-head-ok
             git fetch --all --prune
       - run:
