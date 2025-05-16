@@ -11,8 +11,8 @@ import { clerkClient } from "@clerk/express";
 // const { articleId } = context.params;
 
 //3 
-type Props = {
-  params: Promise<{ articleId: string }>;
+interface Props  {
+  params: Promise<{ articleId: string }>
 };
 
 export async function GET(request: NextRequest, { params }: Props) {
