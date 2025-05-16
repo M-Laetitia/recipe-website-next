@@ -81,9 +81,11 @@ jobs:
           name: Create PR from test to main
           command: |
             echo "Checking for existing PR..."
-            existing_pr=$(gh pr list --state open --base main --head test --json number | grep -c '"number":' || echo "0")
+            pr_count=$(gh pr list --state open --base main --head test --json number | jq length)
 
-            if [ "$existing_pr" -eq "0" ]; then
+            echo "Number of existing PRs: $pr_count"
+            
+            if [ "$pr_count" -eq 0 ]; then
               echo "Creating PR from test to main"
               gh pr create --base main --head test \
                 --title "Merge test into main" \
