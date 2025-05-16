@@ -155,8 +155,6 @@ workflows:
             branches:
               only: main
 
-
-
 # + deploy require bluid and test
 # Juste ci pas de cd
 
