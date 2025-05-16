@@ -11,8 +11,9 @@ import { NextRequest, NextResponse } from "next/server";
 // id: string : params.id est défini comme une chaîne de caractères (string). Cela correspond à l'ID extrait de l'URL dynamique ([id] dans /api/category/[id]/recipes).
 
 type Props = {
-  params: Promise<{ categoryId: string }>
+  params:{ categoryId: string }
 };
+
 
 
 export async function GET(request: NextRequest, { params }: Props) {
