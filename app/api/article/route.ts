@@ -48,8 +48,8 @@ export async function GET() {
         console.log("[ARTICLES]", error)
         return new NextResponse("Internal Error", {status: 500})
     }
-}
-// export async function POST(req: Request) {
+};
+
 export async function POST(req: Request) {
     try{
         const body = await req.json();
@@ -95,4 +95,4 @@ export async function POST(req: Request) {
             { status: 500 }
         );
     }
-}
+};
