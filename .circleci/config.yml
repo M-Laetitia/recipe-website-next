@@ -76,16 +76,20 @@ jobs:
       - checkout
       - github-cli/setup
       - run:
-          gh auth status
+          name: Setup Git and Fetch All Branches
+          command: |
+            git config --global --add safe.directory /root/project
+            git remote set-url origin https://github.com/M-Laetitia/recipe-website-next.git
+            git fetch origin test main --update-head-ok
+            git fetch --all --prune
       - run:
           name: Create PR from test to main
           command: |
             echo "Checking for existing PR..."
-            pr_count=$(gh pr list --state open --base main --head test --json number | jq length)
+            existing_pr=$(gh pr list --state open --base main --head test --json number | jq length)
+            echo "Number of existing PRs: $existing_pr"
 
-            echo "Number of existing PRs: $pr_count"
-            
-            if [ "$pr_count" -eq 0 ]; then
+            if [ "$existing_pr" -eq 0 ]; then
               echo "Creating PR from test to main"
               gh pr create --base main --head test \
                 --title "Merge test into main" \
