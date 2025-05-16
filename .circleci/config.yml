@@ -132,8 +132,8 @@ workflows:
           requires:
             - test-dev
           parameters:
-            source-branch: "dev"
-            target-branch: "test"
+            source-branch: dev
+            target-branch: test
             title: "Merge dev into test"
           filters:
             branches:
@@ -152,8 +152,8 @@ workflows:
           requires:
             - test-test
           parameters:
-            source-branch: "test"
-            target-branch: "main"
+            source-branch: test
+            target-branch: main
             title: "Merge test into main"
           filters:
             branches:
