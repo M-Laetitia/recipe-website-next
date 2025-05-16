@@ -1,11 +1,7 @@
-import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-export async function GET(
-  req: NextRequest,
-  context: { params: { categoryId: string } }
-) {
+export async function GET(req: any, context: { params: { categoryId: string } }) {
   try {
     const { categoryId } = context.params;
 
