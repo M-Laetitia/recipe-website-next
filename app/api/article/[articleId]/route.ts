@@ -11,13 +11,13 @@ import { clerkClient } from "@clerk/express";
 // const { articleId } = context.params;
 
 //3 
-// Fonction GET
-export async function GET(
-  request: Request,
-  { params }: { params: { articleId: string } }
-) {
-  try {
-    const articleId = params.articleId;
+type Props = {
+  params: Promise<{ articleId: string }>
+};
+
+export async function GET(request: NextRequest, { params }: Props) {
+      try {
+        const { articleId } = await params;
         const article = await db.article.findUnique({
         where: {
           id: articleId, 
