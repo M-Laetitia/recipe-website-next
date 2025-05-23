@@ -143,20 +143,32 @@ jobs:
       - image: cimg/node:20.1
       # Environnement Node.js requis pour exécuter des builds et le CLI Vercel.
     steps:
-      - checkout
-      - node/install
-      - node/install-packages
-      # Clone le repo, installe Node.js, puis les dépendances via npm install.
-      - run:
-          name: Install Vercel CLI
-          command: npm install -g vercel
-          # Installe le CLI Vercel globalement pour pouvoir déployer.
-      - run:
-          name: Deploy to Vercel
-          command: |
-            echo "Deploying to Vercel..."
-            vercel --prod --token ${VERCEL_TOKEN} --prod --yes
-          # Déploie en production sur Vercel, en utilisant le token d’authentification passé via la variable d’environnement VERCEL_TOKEN.
+    - checkout
+    - node/install
+    - node/install-packages
+
+    - run:
+        name: Create .env file
+        command: |
+          echo "CLERK_SECRET_KEY=$CLERK_SECRET_KEY" >> .env
+          echo "CLERK_PUBLISHABLE_KEY=$CLERK_PUBLISHABLE_KEY" >> .env
+          echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY" >> .env
+  
+
+    - run:
+        name: Build project locally
+        command: npm run build
+        # Important : construit le site en local pour s’assurer que les variables d’environnement sont bien prises en compte
+
+    - run:
+        name: Install Vercel CLI
+        command: npm install -g vercel
+
+    - run:
+        name: Deploy to Vercel
+        command: |
+          echo "Deploying to Vercel..."
+          vercel --prod --token ${VERCEL_TOKEN} --yes
 
 workflows:
   version: 2
