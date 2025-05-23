@@ -1,47 +1,20 @@
-import { db} from "@/lib/db"
 import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
 
-export async function GET(req: Request) {
-    const { searchParams } = new URL(req.url); //extraire les paramètres de la requête
-    const main = searchParams.get("main"); 
-    // const main = searchParams.get("main") === "true"; 
+export async function GET(req: any) {
+  const { searchParams } = new URL(req.url);
+  const main = searchParams.get("main");
 
-    let whereClause = {};
-    if (main === "true") {
-        whereClause = { isPrimary: true };
-    } else if (main === "false") {
-        whereClause = { isPrimary: false };
-    }
+  try {
+    const categories = await db.category.findMany({
+      where: {
+        isMain: main === "true"
+      }
+    });
 
-    try {
-        const categories = await db.category.findMany({
-            orderBy: {
-                number: 'asc',
-            },
-            include: {
-                categories: {
-                    select: {
-                        recipeId: true, 
-                    }
-                },
-            },
-            // ...(main && { 
-            //     where : {
-            //         isPrimary: true,
-            //     }
-            // }),
-            where: whereClause,
-        });
-
-        // Calculer le nb de recettes par catégories
-        const categoriesWithRecipeCount  = categories.map(category => ({
-            // spread operator copie toutes les propriétés de l'objet category dans un nouveau tableau
-            ...category,
-            recipeCount: category.categories.length,
-        }));
-        return NextResponse.json(categoriesWithRecipeCount)
-    } catch (error) {
-        console.error("[CATEGORIES] Error:", error)
-        return new NextResponse("Internal Error", { status: 500 })
-    }
+    return NextResponse.json(categories);
+  } catch (error) {
+    console.error("[CATEGORY] Error:", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
 }
