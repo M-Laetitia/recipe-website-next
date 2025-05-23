@@ -42,7 +42,10 @@ jobs:
 
       - node/install-packages
       # Lance automatiquement `npm install` ou `yarn install` selon le lockfile détecté
-
+      - run:
+          name: Lint code
+          command: npm run lint
+          
       - save_cache:
           paths:
             - node_modules
