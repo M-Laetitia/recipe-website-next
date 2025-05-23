@@ -7,7 +7,7 @@ import { getCldImageUrl } from 'next-cloudinary';
 import Image from 'next/image';
 import Tag from '@/components/Tag';
 import CursiveLabel from '@/components/CursiveLabel';
-import toast, { Toaster } from 'react-hot-toast';
+// import toast, { Toaster } from 'react-hot-toast';
 
 // type Params = {
 //     articleId: string;
@@ -71,9 +71,9 @@ const ArticlePage = ({ params }: Props) => {
     const {
         register,
         handleSubmit,
-        setError, 
-        clearErrors,
-        setValue,
+        // setError, 
+        // clearErrors,
+        // setValue,
         formState: { errors }
         } = useForm({
         defaultValues: {
@@ -112,7 +112,7 @@ const ArticlePage = ({ params }: Props) => {
     const onSubmit = async (formData: commentSchema) => {
         try {
 
-            const toastId = toast.loading('Your comment is being added...');
+            // const toastId = toast.loading('Your comment is being added...');
 
             const validateData = commentSchema.parse(formData);
             const response = await fetch(`/api/comment`, {
@@ -124,10 +124,10 @@ const ArticlePage = ({ params }: Props) => {
             });
 
             if (response.ok) {
-                toast.success('Your comment has been added !', {
-                    id: toastId,
-                    duration: 3000, 
-                });
+                // toast.success('Your comment has been added !', {
+                //     id: toastId,
+                //     duration: 3000, 
+                // });
                 
                 setTimeout(() => {
                     location.reload();

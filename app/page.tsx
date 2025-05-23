@@ -272,7 +272,7 @@ const Home = () => {
               </div>
               <p className='cursive text-accentColor text-center text-4xl tracking-wide mb-10'>Christmas Spirit</p>
               <p className='text-2xl uppercase tracking-widest leading-tight text-center mb-12'>The holiday season has arrived ! </p>
-              <p className='font-light text-xl text-center leading-tight mb-12'>It's the most wonderful time of the year ! Discover delicious, festive recipes that bring warmth and joy to your table.</p>
+              <p className='font-light text-xl text-center leading-tight mb-12'>It s the most wonderful time of the year ! Discover delicious, festive recipes that bring warmth and joy to your table.</p>
               <div className='flex items-center justify-center'>
                 <Button text="DISCOVER" className="text-center" />
               </div>

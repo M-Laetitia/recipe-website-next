@@ -4,7 +4,7 @@ import { useState, useEffect} from 'react';
 import Image from 'next/image';
 import { Instagram, Youtube, Facebook, Twitter  } from 'lucide-react'
 import Link from 'next/link';
-import Button from '@/components/Button'
+
 
 const Footer = () => {
 

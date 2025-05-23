@@ -18,12 +18,11 @@ const Nav = () => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const links = [
-    { title: 'Profile', url: '/profile' },
-    { title: 'Dashboard', url: '/user' },
-    { title: 'Admin Dashboard', url: '/admin', role: 'admin' },
-    // Add more placeholder links as needed
-  ];
+  // const links = [
+  //   { title: 'Profile', url: '/profile' },
+  //   { title: 'Dashboard', url: '/user' },
+  //   { title: 'Admin Dashboard', url: '/admin', role: 'admin' },
+  // ];
 
   useEffect(() => {
     // Vider l'input à chaque changement de route

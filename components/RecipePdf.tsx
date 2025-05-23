@@ -1,14 +1,20 @@
-import { Document, Page, Text, View, PDFViewer, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import React, { useEffect, useState } from 'react';
 
 interface Props {
   recipeId: string;
 }
 
+type Recipe = {
+  name: string;
+  description: string;
+  ingredients: string[];
+  instructions: string;
+};
 
 
 const RecipePdf = ({ recipeId }: Props) => {
-  const [recipe, setRecipe] = useState<any | null>(null);
+  const [recipe, setRecipe] = useState<Recipe | null>(null);
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -74,11 +80,11 @@ const RecipePdf = ({ recipeId }: Props) => {
         {/* Ingrédients */}
         <View style={styles.section}>
             <Text style={styles.header}>Ingrédients :</Text>
-            {recipe.ingredients.map((ingredient: { ingredient: { name: string }; quantity: number; unit: string }, index: number) => (
+            {/* {recipe.ingredients.map((ingredient: { ingredient: { name: string }; quantity: number; unit: string }, index: number) => (
                 <Text key={index} style={styles.ingredient}>
                 - {ingredient.ingredient.name} ({ingredient.quantity} {ingredient.unit})
                 </Text>
-            ))}
+            ))} */}
         </View>
 
         
