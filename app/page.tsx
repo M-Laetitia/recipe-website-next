@@ -282,8 +282,6 @@ const Home = () => {
         </div>
       </section>
 
-
-
       {/* SECTION 1 - latest articles  */}
       {/* <section className="w-full flex-center flex-col h-screen bg-purple-900">
       </section> */}
