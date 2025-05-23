@@ -6,13 +6,14 @@ import { formatDate } from '@/lib/utils'
 
 import { getCldImageUrl } from 'next-cloudinary';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
+
 
 //^ UI/UX / features
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react'
 import RecipePdf from '@/components/RecipePdf';
 import { PDFDownloadLink} from '@react-pdf/renderer';
-import toast, { Toaster } from 'react-hot-toast';
+// import toast, { Toaster } from 'react-hot-toast';
 
 //^ Components 
 import Tag from '@/components/Tag';
@@ -104,7 +105,7 @@ const reviewSchema = z.object({
 type reviewSchema = z.infer<typeof reviewSchema>;
 
 const RecipePage = ({ params }: Props)  => {
-    const router = useRouter();
+    // const router = useRouter();
     const [recipe, setRecipe] = useState<Recipe | null>(null); // Initialisation avec null
     const [recipeId, setRecipeId] = useState<string | null>(null);
     const [stepCount, setStepCount] = useState(0); 
@@ -115,9 +116,9 @@ const RecipePage = ({ params }: Props)  => {
     const {
         register,
         handleSubmit,
-        setError, 
+        // setError, 
         clearErrors,
-        setValue,
+        // setValue,
         formState: { errors }
       } = useForm({
         defaultValues: {
@@ -194,7 +195,7 @@ const RecipePage = ({ params }: Props)  => {
         };
     
         fetchAllRecipes();
-    }, [recipe]);
+    }, [recipe, recipeId]);
     
     // if(!recipe) {
     //     redirect('/')
@@ -241,7 +242,7 @@ const RecipePage = ({ params }: Props)  => {
             // reset();
 
             // Reset du formulaire
-            const toastId = toast.loading('Your comment is being added...');
+            // const toastId = toast.loading('Your comment is being added...');
 
             const validateData = reviewSchema.parse(formData);
             const response = await fetch(`/api/review`, {
@@ -254,22 +255,24 @@ const RecipePage = ({ params }: Props)  => {
 
             if (response.ok) {
                 // Si succès : toast de succès et refresh
-                toast.success('Your comment has been added !', {
-                    id: toastId,
-                    duration: 3000, 
-                });
+                // toast.success('Your comment has been added !', {
+                //     id: toastId,
+                //     duration: 3000, 
+                 console.log('ok')
+                // });
                 
-                setTimeout(() => {
-                    location.reload();
-                }, 4000);
-
-                // Utiliser router.refresh() avec un petit délai
                 // setTimeout(() => {
-                //     router.refresh();
-                // }, 1000);
-            } else {
-                console.error('Error when adding the review');
+                //     location.reload();
+                // }, 4000);
             }
+
+            //     // Utiliser router.refresh() avec un petit délai
+            //     // setTimeout(() => {
+            //     //     router.refresh();
+            //     // }, 1000);
+            // } else {
+            //     console.error('Error when adding the review');
+            // }
         } catch (error) {
             console.error('Error when adding the review:', error);
         }
@@ -297,6 +300,17 @@ const RecipePage = ({ params }: Props)  => {
                     />
                 </div>
             </div>
+
+            {allRecipes.length > 0 && (
+                <div className="hidden">
+                    <h2>Autres recettes disponibles :</h2>
+                    <ul>
+                    {allRecipes.map((r, index) => (
+                        <p key={index} className='text-xl mr-7'>{r}</p>
+                        ))}
+                    </ul>
+                </div>
+            )}
 
 
             {/* //& TOP ----------------------------------------------------- */}

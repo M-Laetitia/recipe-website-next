@@ -1,8 +1,6 @@
 import React from 'react'
 import Image from 'next/image';
 import { Clock4 } from 'lucide-react';
-// import { Star } from 'lucide-react';
-import { ChefHat } from 'lucide-react';
 import { getCldImageUrl } from 'next-cloudinary';
 import Link from 'next/link';
 

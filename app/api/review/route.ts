@@ -1,7 +1,7 @@
 import { db } from "@/lib/db"
 import { NextResponse } from "next/server";
 // import { ClerkExpressWithAuth } from "@clerk/express";
-import { clerkClient } from "@clerk/express"; 
+// import { clerkClient } from "@clerk/express"; 
 
 export async function POST(req: Request) {
     try{

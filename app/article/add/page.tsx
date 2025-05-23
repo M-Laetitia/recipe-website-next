@@ -14,6 +14,16 @@ const articleSchema = z.object({
 
 type ArticleSchema = z.infer<typeof articleSchema>
 
+type ImageInfo = {
+  secure_url: string;
+  original_filename: string;
+  public_id: string;
+};
+
+// type UploadResult = {
+//   info: ImageInfo;
+// };
+
 const AddArticle = () => {
     const {
         register,
@@ -21,7 +31,6 @@ const AddArticle = () => {
         setError, 
         clearErrors,
         watch, 
-        setValue,
         formState: { errors }
       } = useForm({
         defaultValues: {
@@ -34,11 +43,9 @@ const AddArticle = () => {
     console.log(watch("title"));
 
     // État pour stocker temporairement l'image sélectionnée
-    const [selectedImage, setSelectedImage] = useState<any>(null);
-    // État pour l'aperçu de l'image
-    const [previewUrl, setPreviewUrl] = useState<string>('');
-     // État pour stocker le nom de l'image Cloudinary
-     const [imagename, setImageName] = useState<string>('');
+   const [selectedImage] = useState<ImageInfo | null>(null);
+    const [previewUrl] = useState<string>('');
+    const [imagename] = useState<string>('');
 
     const onSubmit = async (formData: ArticleSchema) => {
         try {
@@ -48,7 +55,7 @@ const AddArticle = () => {
            if (selectedImage) {
                // Création d'une FormData pour l'upload
                const uploadData = new FormData();
-               uploadData.append('file', selectedImage);
+            //    uploadData.append('file', selectedImage);
                uploadData.append('upload_preset', 'recipe-website-preset');
                
                // Upload vers Cloudinary
@@ -102,16 +109,7 @@ const AddArticle = () => {
         }
     };
 
-    // Gestion de la sélection d'image
-    const handleImageSelect = (result: any) => {
-      // On stocke les informations de l'image temporairement
-      setSelectedImage(result.info);
-      // On affiche un aperçu
-      setPreviewUrl(result.info.secure_url);
-      setImageName(result.info.original_filename);
-      setValue('image', result.info.public_id); // Met à jour le champ image du formulaire
-    };
-  
+
    
     return (
         <>
@@ -140,7 +138,7 @@ const AddArticle = () => {
                 <label>Image</label>
                     <CldUploadWidget
                         uploadPreset="recipe-website-preset"
-                        onSuccess={handleImageSelect}
+                        // onSuccess={handleImageSelect}
                     >
                       {({ open }) => (
                           <div>

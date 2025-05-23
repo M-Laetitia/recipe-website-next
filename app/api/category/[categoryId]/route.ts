@@ -1,9 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest} from "next/server";
 import { db } from "@/lib/db";
 
-export async function GET(req: any, context: { params: { categoryId: string } }) {
+type Props = {
+  params: Promise<{ categoryId: string }>
+}
+
+
+export async function GET(req: NextRequest, { params }: Props) {
   try {
-    const { categoryId } = context.params;
+    const { categoryId } = await params;
 
     const recipes = await db.categoryRecipe.findMany({
       where: { categoryId },

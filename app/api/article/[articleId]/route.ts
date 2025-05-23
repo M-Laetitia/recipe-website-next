@@ -8,9 +8,14 @@ if (!process.env.CLERK_SECRET_KEY) {
 
 const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 
-export async function GET(request: any, context: { params: { articleId: string } }) {
+type Props = {
+  params: Promise<{ articleId: string }>
+}
+
+
+export async function GET(request: NextRequest,  { params }: Props) {
   try {
-    const { articleId } = context.params;
+    const { articleId } = await params;
 
     const article = await db.article.findUnique({
       where: { id: articleId },
