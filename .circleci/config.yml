@@ -155,7 +155,7 @@ jobs:
           name: Deploy to Vercel
           command: |
             echo "Deploying to Vercel..."
-            vercel --prod --token ${VERCEL_TOKEN} --prod --confirm
+            vercel --prod --token ${VERCEL_TOKEN} --prod --yes
           # Déploie en production sur Vercel, en utilisant le token d’authentification passé via la variable d’environnement VERCEL_TOKEN.
 
 workflows:
