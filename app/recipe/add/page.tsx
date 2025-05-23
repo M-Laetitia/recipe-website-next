@@ -1,7 +1,6 @@
 'use client';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
-import { CldUploadWidget } from 'next-cloudinary';
 import { useEffect, useState } from 'react';
 
 //& SCHEMA ZOD ------------------------------------------------------------
@@ -46,7 +45,6 @@ const AddRecipe = () => {
     setError,
     clearErrors,
     reset,
-    watch,
     setValue,
     formState: { errors },
   } = useForm<RecipeFormData>({

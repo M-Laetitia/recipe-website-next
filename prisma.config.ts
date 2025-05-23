@@ -1,6 +1,5 @@
 import path from 'node:path'
 import dotenv from 'dotenv';
-// @ts-expect-error: PrismaConfig type not available yet
 import type { PrismaConfig } from 'prisma'
 
 
