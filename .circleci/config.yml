@@ -214,12 +214,12 @@ jobs:
     steps:
       - checkout
       - run:
-        name: Install Chromium
-        command: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser
-          echo 'CHROME_PATH=/usr/bin/chromium-browser' >> $BASH_ENV
-          source $BASH_ENV
+          name: Install Chromium
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y chromium-browser
+            echo 'CHROME_PATH=/usr/bin/chromium-browser' >> $BASH_ENV
+            source $BASH_ENV
       - run: npm install
       - run:
           name: Build Next.js
