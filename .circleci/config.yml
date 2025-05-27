@@ -92,23 +92,26 @@ jobs:
 
   # Job pour lighthouse-audit
   lighthouse-audit:
-    docker:
-      - image: cimg/node:20.1
+    executor: lighthouse-check/default
+    # Define the steps to run in this job
     steps:
-      - checkout
-      - lighthouse-check/audit:
-          urls: 'https://recipe-website-next-three.vercel.app'
+     - lighthouse-check/audit:
+         urls: 'https://recipe-website-next-three.vercel.app'
+     - lighthouse-check/validate-status:
+         minAccessibilityScore: '60'
+         minPerformanceScore: '90'
+         minSeoScore: '50'
 
   # Job pour lighthouse-validate-status
-  lighthouse-validate:
-    docker:
-      - image: cimg/node:20.1
-    steps:
-      - checkout
-      - lighthouse-check/validate-status:
-          minAccessibilityScore: '60'
-          minPerformanceScore: '90'
-          minSeoScore: '50'
+  # lighthouse-validate:
+  #   docker:
+  #     - image: cimg/node:20.1
+  #   steps:
+  #     - checkout
+  #     - lighthouse-check/validate-status:
+  #         minAccessibilityScore: '60'
+  #         minPerformanceScore: '90'
+  #         minSeoScore: '50'
 
   # Job spécifique pour créer une PR de dev vers test
   create-pr-dev-to-test:
@@ -262,12 +265,12 @@ workflows:
           filters:
             branches:
               only: test
-      - lighthouse-validate:
-          requires:
-            - lighthouse-audit
-          filters:
-            branches:
-              only: test
+      # - lighthouse-validate:
+      #     requires:
+      #       - lighthouse-audit
+      #     filters:
+      #       branches:
+      #         only: test
       - create-pr-test-to-master:
           requires:
             - test-test
