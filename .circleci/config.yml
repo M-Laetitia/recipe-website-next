@@ -97,10 +97,10 @@ jobs:
     steps:
       - checkout
       - lighthouse-check/audit:
-          urls: https://recipe-website-next-three.vercel.app/
+          urls: 'https://recipe-website-next-three.vercel.app'
 
   # Job pour lighthouse-validate-status
-  lighthouse-validate-status:
+  lighthouse-validate:
     docker:
       - image: cimg/node:20.1
     steps:
@@ -263,7 +263,7 @@ workflows:
           filters:
             branches:
               only: test
-      - lighthouse-validate-status:
+      - lighthouse-validate:
           requires:
             - lighthouse-audit
           filters:
