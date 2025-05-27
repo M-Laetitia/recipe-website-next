@@ -6,7 +6,6 @@ orbs:
   node: circleci/node@5.1.1
     # Fournit des commandes préconfigurées comme `node/install`, `node/install-packages`
   github-cli: circleci/github-cli@2.0
-  lighthouse-check: foo-software/lighthouse-check@0.0.18
 
 # Définition d’un job : un ensemble d’étapes exécutées dans un environnement donné
 jobs:
@@ -90,25 +89,72 @@ jobs:
         # Exécute les tests définis dans le script `"test"` de ton package.json
         # Ces tests doivent se connecter à la base MongoDB via MONGODB_URI
 
-  # Job pour lighthouse-audit
+ # Job pour lighthouse-audit
   lighthouse-audit:
     docker:
       - image: cimg/node:20.1
     steps:
       - checkout
-      - lighthouse-check/audit:
-          urls: 'https://recipe-website-next-three.vercel.app'
+      - node/install
+      - run:
+          name: Install Lighthouse CLI
+          command: npm install -g lighthouse
+      - run:
+          name: Run Lighthouse Audit
+          command: |
+            echo "Running Lighthouse audit..."
+            lighthouse https://recipe-website-next-three.vercel.app \
+              --output=json \
+              --output-path=./lighthouse-report.json \
+              --chrome-flags="--headless --no-sandbox --disable-gpu"
+      - run:
+          name: Parse Lighthouse Results
+          command: |
+            echo "Parsing Lighthouse results..."
+            
+            # Extract scores from the report
+            PERFORMANCE=$(cat lighthouse-report.json | jq '.categories.performance.score * 100')
+            ACCESSIBILITY=$(cat lighthouse-report.json | jq '.categories.accessibility.score * 100')
+            SEO=$(cat lighthouse-report.json | jq '.categories.seo.score * 100')
+            
+            echo "Performance Score: $PERFORMANCE"
+            echo "Accessibility Score: $ACCESSIBILITY" 
+            echo "SEO Score: $SEO"
+            
+            # Set minimum thresholds
+            MIN_PERFORMANCE=90
+            MIN_ACCESSIBILITY=60
+            MIN_SEO=50
+            
+            # Check if scores meet minimum requirements
+            if (( $(echo "$PERFORMANCE < $MIN_PERFORMANCE" | bc -l) )); then
+              echo "❌ Performance score ($PERFORMANCE) is below minimum ($MIN_PERFORMANCE)"
+              exit 1
+            fi
+            
+            if (( $(echo "$ACCESSIBILITY < $MIN_ACCESSIBILITY" | bc -l) )); then
+              echo "❌ Accessibility score ($ACCESSIBILITY) is below minimum ($MIN_ACCESSIBILITY)"
+              exit 1
+            fi
+            
+            if (( $(echo "$SEO < $MIN_SEO" | bc -l) )); then
+              echo "❌ SEO score ($SEO) is below minimum ($MIN_SEO)"
+              exit 1
+            fi
+            
+            echo "✅ All Lighthouse scores meet minimum requirements!"
+      - store_artifacts:
+          path: ./lighthouse-report.json
+          destination: lighthouse-report.json
 
-  # Job pour lighthouse-validate-status
+  # Combined lighthouse job (audit + validation)
   lighthouse-validate:
     docker:
       - image: cimg/node:20.1
     steps:
-      - checkout
-      - lighthouse-check/validate-status:
-          minAccessibilityScore: '60'
-          minPerformanceScore: '90'
-          minSeoScore: '50'
+      - run:
+          name: Lighthouse validation completed
+          command: echo "Lighthouse validation was integrated into lighthouse-audit job"
 
   # Job spécifique pour créer une PR de dev vers test
   create-pr-dev-to-test:
