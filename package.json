@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
+    "type-check": "tsc --noEmit",
     "prisma-db-push:test": "dotenv -e .env.test -- npx prisma db push",
     "prisma-db-push:dev": "dotenv -e .env.development -- npx prisma db push",
     "prisma-studio:test": "dotenv -e .env.test -- npx prisma studio",
