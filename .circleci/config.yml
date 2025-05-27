@@ -60,7 +60,7 @@ jobs:
             else
               echo "TypeScript non configuré, étape ignorée"
             fi
-
+      # Lint test
       - run:
           name: Lint code (strict)
           command: |
@@ -207,6 +207,40 @@ jobs:
           echo "Deploying to Vercel..."
           vercel --prod --token ${VERCEL_TOKEN} --yes
 
+  #job pour un audit lighthouse
+  lighthouse-audit:
+    docker:
+      - image: cimg/node:20.1
+    steps:
+      - checkout
+      - run: npm install
+      - run:
+          name: Build Next.js
+          command: npm run build
+      - run:
+          name: Start Next.js server
+          command: npm start &
+      - run:
+          name: Wait for server to be up
+          command: |
+            for i in `seq 1 15`; do
+              curl -s http://localhost:3000 && break
+              echo "Waiting for server..."
+              sleep 2
+            done
+      - run:
+          name: Run Lighthouse
+          command: |
+            npx lighthouse http://localhost:3000 --output=json --output-path=./lighthouse-report.json --quiet
+      - run:
+          name: Display Lighthouse Scores
+          command: |
+            echo "=== Lighthouse Scores ==="
+            jq '.categories | to_entries[] | "\(.key): \(.value.score * 100)%"' lighthouse-report.json
+      - store_artifacts:
+          path: lighthouse-report.json
+  
+
 workflows:
   version: 2
   ci-cd-pipeline:
@@ -219,6 +253,7 @@ workflows:
             branches:
               only: dev
             # Lance les tests quand push sur dev.
+
       - create-pr-dev-to-test:
           requires:
             - test-dev
@@ -230,6 +265,12 @@ workflows:
       # Workflow pour la branche test
       - build-and-test:
           name: test-test
+          filters:
+            branches:
+              only: test
+      - lighthouse-audit:
+          requires:
+            - test-test
           filters:
             branches:
               only: test
