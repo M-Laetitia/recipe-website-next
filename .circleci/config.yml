@@ -6,6 +6,7 @@ orbs:
   node: circleci/node@5.1.1
     # Fournit des commandes préconfigurées comme `node/install`, `node/install-packages`
   github-cli: circleci/github-cli@2.0
+  lighthouse-check: foo-software/lighthouse-check@1.0.0
 
 # Définition d’un job : un ensemble d’étapes exécutées dans un environnement donné
 jobs:
@@ -207,18 +208,6 @@ jobs:
           echo "Deploying to Vercel..."
           vercel --prod --token ${VERCEL_TOKEN} --yes
 
-  #job pour un audit lighthouse
-  lighthouse-audit:
-    # Use the same node image as the test job
-    executor: lighthouse-check/default
-    # Define the steps to run in this job
-    steps:
-      - lighthouse-check/audit:
-        urls: https://next-recipe.vercel.app/
-      - lighthouse-check/validate-status:
-        minAccessibilityScore: '60'
-        minPerformanceScore: '90'
-        minSeoScore: '50'
     
 workflows:
   version: 2
@@ -232,6 +221,25 @@ workflows:
             branches:
               only: dev
             # Lance les tests quand push sur dev.
+            
+      - lighthouse-check/audit:
+          name: lighthouse-audit
+          urls: https://recipe-website-next-three.vercel.app/
+          requires:
+            - test-test
+          filters:
+            branches:
+              only: test
+
+      - lighthouse-check/validate-status:
+          minAccessibilityScore: '60'
+          minPerformanceScore: '90'
+          minSeoScore: '50'
+          requires:
+            - lighthouse-audit
+          filters:
+            branches:
+              only: test
 
       - create-pr-dev-to-test:
           requires:
