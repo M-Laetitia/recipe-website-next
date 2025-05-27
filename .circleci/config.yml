@@ -78,7 +78,8 @@ jobs:
       - github-cli/setup
       #  installe l’outil en ligne de commande GitHub CLI (gh) pour interagir avec GitHub via script.
       - run:
-          gh auth status
+          name: Verify GitHub authentication  
+          command: gh auth status
           # Vérifie l’état de l’authentification GitHub : indispensable pour pouvoir créer une PR automatiquement.
       
       - run: 
@@ -103,8 +104,8 @@ jobs:
               echo "Une PR existe déjà entre dev et test. Pas de nouvelle PR créée."
             fi
 
-  # Job spécifique pour créer une PR de test vers main
-  create-pr-test-to-main:
+  # Job spécifique pour créer une PR de test vers master
+  create-pr-test-to-master:
     docker:
       - image: cimg/base:2023.03
     steps:
@@ -150,13 +151,24 @@ jobs:
     - node/install
     - node/install-packages
 
+    # Masquer les variables sensibles dans les logs CircleCI 
+    # Masquage des valeurs : Avant d'écrire chaque variable dans le fichier .env, utilisation de "::add-mask::$VAR" pour masquer la valeur dans les logs.
     - run:
-        name: Create .env file
+        name: Create secure .env file
         command: |
-          echo "CLERK_SECRET_KEY=$CLERK_SECRET_KEY" >> .env
-          echo "CLERK_PUBLISHABLE_KEY=$CLERK_PUBLISHABLE_KEY" >> .env
-          echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY" >> .env
-          echo "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=$NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME" >> .env
+          echo "::add-mask::$CLERK_SECRET_KEY"
+          echo "::add-mask::$CLERK_PUBLISHABLE_KEY"
+          echo "::add-mask::$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
+          echo "::add-mask::$NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME"
+          echo "::add-mask::$VERCEL_TOKEN"
+          {
+            echo "CLERK_SECRET_KEY=$CLERK_SECRET_KEY"
+            echo "CLERK_PUBLISHABLE_KEY=$CLERK_PUBLISHABLE_KEY" 
+            echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
+            echo "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=$NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME"
+          } > .env
+          
+          echo "Fichier .env créé avec succès (valeurs masquées)"
   
 
     - run:
@@ -200,14 +212,14 @@ workflows:
           filters:
             branches:
               only: test
-      - create-pr-test-to-main:
+      - create-pr-test-to-master:
           requires:
             - test-test
           filters:
             branches:
               only: test
 
-      # Workflow pour la branche main
+      # Workflow pour la branche master
       - build-and-test:
           name: test-master
           filters:
