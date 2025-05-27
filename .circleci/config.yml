@@ -302,7 +302,5 @@ workflows:
 # branche test
 # pull request avec main
 
-
 #ajuste un ci pas un cd, pipeline check si les test passent avant tout déploiement
-
 # > faire en sorte que les tests se fassent sur l'env. test 
