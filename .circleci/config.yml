@@ -6,6 +6,7 @@ orbs:
   node: circleci/node@5.1.1
     # Fournit des commandes préconfigurées comme `node/install`, `node/install-packages`
   github-cli: circleci/github-cli@2.0
+  lighthouse-check: foo-software/lighthouse-check@0.0.13
 
 # Définition d’un job : un ensemble d’étapes exécutées dans un environnement donné
 jobs:
@@ -60,12 +61,13 @@ jobs:
             else
               echo "TypeScript non configuré, étape ignorée"
             fi
-
+      # Lint test
       - run:
           name: Lint code (strict)
           command: |
             echo " Analyse du code (mode strict)..."
             npm run lint -- --max-warnings=0
+      
           
       - save_cache:
           paths:
@@ -87,6 +89,29 @@ jobs:
           command: npm run test
         # Exécute les tests définis dans le script `"test"` de ton package.json
         # Ces tests doivent se connecter à la base MongoDB via MONGODB_URI
+
+  # Job pour lighthouse-audit
+  lighthouse-audit:
+    executor: lighthouse-check/default
+    # Define the steps to run in this job
+    steps:
+     - lighthouse-check/audit:
+         urls: 'https://recipe-website-next-three.vercel.app'
+     - lighthouse-check/validate-status:
+         minAccessibilityScore: '60'
+         minPerformanceScore: '90'
+         minSeoScore: '50'
+
+  # Job pour lighthouse-validate-status
+  # lighthouse-validate:
+  #   docker:
+  #     - image: cimg/node:20.1
+  #   steps:
+  #     - checkout
+  #     - lighthouse-check/validate-status:
+  #         minAccessibilityScore: '60'
+  #         minPerformanceScore: '90'
+  #         minSeoScore: '50'
 
   # Job spécifique pour créer une PR de dev vers test
   create-pr-dev-to-test:
@@ -190,7 +215,6 @@ jobs:
           } > .env
           
           echo "Fichier .env créé avec succès (valeurs masquées)"
-  
 
     - run:
         name: Build project locally
@@ -207,6 +231,7 @@ jobs:
           echo "Deploying to Vercel..."
           vercel --prod --token ${VERCEL_TOKEN} --yes
 
+    
 workflows:
   version: 2
   ci-cd-pipeline:
@@ -219,6 +244,7 @@ workflows:
             branches:
               only: dev
             # Lance les tests quand push sur dev.
+
       - create-pr-dev-to-test:
           requires:
             - test-dev
@@ -233,6 +259,18 @@ workflows:
           filters:
             branches:
               only: test
+      - lighthouse-audit:
+          requires:
+            - test-test
+          filters:
+            branches:
+              only: test
+      # - lighthouse-validate:
+      #     requires:
+      #       - lighthouse-audit
+      #     filters:
+      #       branches:
+      #         only: test
       - create-pr-test-to-master:
           requires:
             - test-test
@@ -274,7 +312,5 @@ workflows:
 # branche test
 # pull request avec main
 
-
 #ajuste un ci pas un cd, pipeline check si les test passent avant tout déploiement
-
 # > faire en sorte que les tests se fassent sur l'env. test 
