@@ -214,11 +214,11 @@ jobs:
     # Define the steps to run in this job
     steps:
       - lighthouse-check/audit:
-          urls: https://next-recipe.vercel.app/
+        urls: https://next-recipe.vercel.app/
       - lighthouse-check/validate-status:
-          minAccessibilityScore: '60'
-          minPerformanceScore: '90'
-          minSeoScore: '50'
+        minAccessibilityScore: '60'
+        minPerformanceScore: '90'
+        minSeoScore: '50'
     
 workflows:
   version: 2
