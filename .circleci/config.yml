@@ -110,7 +110,6 @@ jobs:
           minPerformanceScore: '90'
           minSeoScore: '50'
 
-
   # Job spécifique pour créer une PR de dev vers test
   create-pr-dev-to-test:
     docker:
