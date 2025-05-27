@@ -42,9 +42,30 @@ jobs:
 
       - node/install-packages
       # Lance automatiquement `npm install` ou `yarn install` selon le lockfile détecté
+
+      # Audit de sécurité
       - run:
-          name: Lint code
-          command: npm run lint
+          name: Security audit
+          command: |
+            echo "Vérification des vulnérabilités de sécurité..."
+            npm audit --audit-level=moderate
+
+      # TypeScript check 
+      - run:
+          name: TypeScript type check
+          command: |
+            if [ -f "tsconfig.json" ]; then
+              echo "Vérification des types TypeScript..."
+              npm run type-check
+            else
+              echo "TypeScript non configuré, étape ignorée"
+            fi
+
+      - run:
+          name: Lint code (strict)
+          command: |
+            echo " Analyse du code (mode strict)..."
+            npm run lint -- --max-warnings=0
           
       - save_cache:
           paths:
