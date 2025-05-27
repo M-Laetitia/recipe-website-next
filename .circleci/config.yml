@@ -213,7 +213,6 @@ jobs:
           } > .env
           
           echo "Fichier .env créé avec succès (valeurs masquées)"
-  
 
     - run:
         name: Build project locally
@@ -258,7 +257,7 @@ workflows:
           filters:
             branches:
               only: test
-      - lighthouse-check/audit:
+      - lighthouse-audit:
           requires:
             - test-test
           filters:
