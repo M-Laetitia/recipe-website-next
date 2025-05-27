@@ -6,7 +6,7 @@ orbs:
   node: circleci/node@5.1.1
     # Fournit des commandes préconfigurées comme `node/install`, `node/install-packages`
   github-cli: circleci/github-cli@2.0
-  lighthouse-check: foo-software/lighthouse-check@0.0.13
+  lighthouse-check: foo-software/lighthouse-check@0.0.6
 
 # Définition d’un job : un ensemble d’étapes exécutées dans un environnement donné
 jobs:
