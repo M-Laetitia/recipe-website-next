@@ -245,13 +245,13 @@ Création automatique de Pull Requests
 ## 🎨 Aperçu UX/UI
 
 ### Sections - homepage
-![](/public/img/screenshots/section-homepage.PNG)
+![](/public/img/screenshots/section-homepage.png)
 
 ### Recette Détail
-![](/public/img/screenshots/page-recette.PNG)
+![](/public/img/screenshots/page-recette.png)
 
 ### Article détail
-![](/public/img/screenshots/page-article.PNG)
+![](/public/img/screenshots/page-article.png)
 ---
 
 ## 📚 Bilan de compétences techniques
