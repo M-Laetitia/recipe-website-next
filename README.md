@@ -16,7 +16,7 @@
 - [⚙️ Technologies utilisées](#️-technologies-utilisées)
 - [📁 Structure du projet](#-structure-du-projet)
 - [📡 Routes API](#-routes-api)
-- [📡 Sécurite et robustesse](#-securite-et-robustesse)
+- [📡 Sécurite et robustesse](#-sécurite-et-robustesse)
 - [🚀 Installation et lancement](#-installation-et-lancement)
 - [🧪 Développement](#-développement)
 - [🌐 Déploiement](#-déploiement)
