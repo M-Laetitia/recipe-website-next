@@ -1,6 +1,6 @@
-![](/public/screenshots/just-cook-banner.png)
+![](/public/img/screenshots/just_cook_banner.PNG)
 
-![](/public/screenshots/logo_light.png)
+![](/public/img/screenshots/logo_light.png)
 
 ---
 
@@ -181,7 +181,8 @@ cd recipe-website-next
 ```
 
 - Installer les dépendances: 
-```npm install
+```
+npm install
 ```
 - Configurer la base de données : 
 ```
