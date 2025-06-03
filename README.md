@@ -1,6 +1,6 @@
 ![](/public/img/screenshots/just_cook_banner.PNG)
 
-![](/public/img/screenshots/logo-just-cook.png)
+#Just Cook
 
 ---
 
