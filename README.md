@@ -16,7 +16,7 @@
 - [⚙️ Technologies utilisées](#️-technologies-utilisées)
 - [📁 Structure du projet](#-structure-du-projet)
 - [📡 Routes API](#-routes-api)
-- [📡 Sécurite et robustesse](#-securite-et-robustesse)
+- [📡 Sécurité et robustesse](#-sécurité-et-robustesse)
 - [🚀 Installation et lancement](#-installation-et-lancement)
 - [🧪 Développement](#-développement)
 - [🌐 Déploiement](#-déploiement)
@@ -245,13 +245,13 @@ Création automatique de Pull Requests
 ## 🎨 Aperçu UX/UI
 
 ### Sections - homepage
-![](/public/img/screenshots/section-homepage.png)
+![](/public/img/screenshots/section-homepage.PNG)
 
 ### Recette Détail
-![](/public/img/screenshots/page-recette.png)
+![](/public/img/screenshots/page-recette.PNG)
 
 ### Article détail
-![](/public/img/screenshots/page-article.png)
+![](/public/img/screenshots/page-article.PNG)
 ---
 
 ## 📚 Bilan de compétences techniques
