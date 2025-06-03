@@ -1,7 +1,7 @@
 # Projet Next.js - Site/blog de recettes de cuisine 
 
 ## Objectif du document
-Le pipeline CI/CD automatise l'ensemble du processus de développement depuis le commit sur la branche dev jusqu'au déploiement en production. Il garantit la qualité du code via des tests automatisés, des audits de sécurité et de performance, tout en assurant un déploiement sécurisé sur Vercel.
+Cette documentation technique décrit l'architecture et le fonctionnement du pipeline CI/CD mis en place pour garantir des livraisons fiables et continues du projet Next.js. Elle s'adresse aux développeurs de l'équipe et aux responsables techniques.
 ---
 
 ## Vue d'ensemble du la pipeline CI/CD
