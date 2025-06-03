@@ -133,7 +133,7 @@ Le projet utilise **Clerk** combiné à des **middlewares Next.js** pour protég
 ### Gestion des erreurs
 
 - Chaque appel API est encapsulé dans des blocs `try/catch` côté serveur.
-- Une page `error.tsx` personnalisée masque les erreurs critiques (ex. stack trace, messages sensibles) en production, tout en affichant un message clair à l’utilisateur.
+- Une page `error.tsx` personnalisée masque les erreurs critiques.
 - Les erreurs client (404, 403, 401) sont aussi gérées via les pages système de Next.js.
 
 ### Bonnes pratiques mises en place
